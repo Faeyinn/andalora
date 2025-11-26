@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { ProfileSidebar } from "@/components/profil/ProfileSidebar";
-import { AkunForm } from "@/components/profil/AkunForm";
+import { AkunContent } from "@/components/profil/AkunContent";
 import { FavoritContent } from "@/components/profil/FavoritContent";
 import { BarangSayaContent } from "@/components/profil/BarangSayaContent";
 import { TambahBarangContent } from "@/components/profil/TambahBarangContent";
@@ -15,13 +15,13 @@ export default function ProfilClient() {
       case "favorit":
         return <FavoritContent />;
       case "akun":
-        return <AkunForm />;
+        return <AkunContent />;
       case "barang-saya":
         return <BarangSayaContent />;
       case "tambah-barang":
         return <TambahBarangContent />;
       default:
-        return <AkunForm />;
+        return <AkunContent />;
     }
   };
 
@@ -34,7 +34,8 @@ export default function ProfilClient() {
               {
                 position: "sticky",
                 top: "var(--navbar-height)",
-                height: "calc(100vh - var(--navbar-height) - var(--footer-height))",
+                height:
+                  "calc(100vh - var(--navbar-height) - var(--footer-height))",
                 alignSelf: "start",
                 overflowY: "auto",
               } as React.CSSProperties
@@ -52,7 +53,9 @@ export default function ProfilClient() {
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={`px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
-                  activeTab === tab ? "bg-[#CBAF94] text-white" : "bg-gray-100 text-gray-800"
+                  activeTab === tab
+                    ? "bg-[#CBAF94] text-white"
+                    : "bg-gray-100 text-gray-800"
                 }`}
               >
                 {tab === "favorit" && "Favorit"}

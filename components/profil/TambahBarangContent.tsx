@@ -1,4 +1,3 @@
-// @/components/profil/TambahBarangContent.tsx
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -10,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Upload, X } from "lucide-react";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
+import { uploadImage, apiRequest } from "@/lib/utils/api";
+import type { Category, CreateProductRequest, Product } from "@/types";
 
 type ImagePreview = {
   file: File;
@@ -18,17 +19,27 @@ type ImagePreview = {
 
 export const TambahBarangContent: React.FC = () => {
   const router = useRouter();
+  const [categories, setCategories] = useState<Category[]>([]);
   const [formData, setFormData] = useState({
-    namaBarang: "",
-    harga: "",
-    tipe: "",
-    kondisiBarang: "Baik",
-    nomorKontak: "",
-    sosialMedia: "",
-    lokasi: "",
+    title: "",
+    price: "",
+    description: "",
+    category_id: "",
+    condition: "bekas baik" as const,
   });
   const [images, setImages] = useState<ImagePreview[]>([]);
   const [loading, setLoading] = useState(false);
+
+  // Fetch categories on mount
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const result = await apiRequest<Category[]>("/categories");
+      if (result.success && result.data) {
+        setCategories(result.data);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -38,26 +49,45 @@ export const TambahBarangContent: React.FC = () => {
   }, [images]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
-    const target = e.target as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
-    const { name, value } = target;
+    const { name, value } = e.target;
     setFormData((s) => ({ ...s, [name]: value }));
   };
 
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value.replace(/[^\d]/g, "");
-    setFormData((s) => ({ ...s, harga: raw }));
+    setFormData((s) => ({ ...s, price: raw }));
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
-    const files = Array.from(e.target.files).slice(0, 6); // allow up to 6
-    const previews = files.map((f) => ({ file: f, url: URL.createObjectURL(f) }));
+    const files = Array.from(e.target.files).slice(0, 6);
+
+    // Validate file types
+    const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+    const invalidFiles = files.filter((f) => !validTypes.includes(f.type));
+
+    if (invalidFiles.length > 0) {
+      Swal.fire({
+        icon: "error",
+        title: "Format Tidak Valid",
+        text: "Hanya file JPG, PNG, dan WebP yang diperbolehkan",
+        confirmButtonColor: "#2D3250",
+      });
+      return;
+    }
+
+    const previews = files.map((f) => ({
+      file: f,
+      url: URL.createObjectURL(f),
+    }));
     // revoke old urls
     images.forEach((p) => URL.revokeObjectURL(p.url));
     setImages(previews);
-    e.currentTarget.value = ""; // reset input
+    e.currentTarget.value = "";
   };
 
   const removeImage = (index: number) => {
@@ -68,9 +98,11 @@ export const TambahBarangContent: React.FC = () => {
   };
 
   const validate = () => {
-    if (!formData.namaBarang.trim()) return "Nama barang wajib diisi.";
-    if (!formData.harga.trim()) return "Harga wajib diisi.";
-    if (!formData.tipe.trim()) return "Deskripsi / tipe wajib diisi.";
+    if (!formData.title.trim()) return "Nama barang wajib diisi";
+    if (!formData.price.trim()) return "Harga wajib diisi";
+    if (!formData.description.trim()) return "Deskripsi wajib diisi";
+    if (!formData.category_id) return "Kategori wajib dipilih";
+    if (images.length === 0) return "Minimal 1 gambar harus diupload";
     return null;
   };
 
@@ -91,23 +123,69 @@ export const TambahBarangContent: React.FC = () => {
     e.preventDefault();
     const err = validate();
     if (err) {
-      Swal.fire({ icon: "error", title: "Error", text: err, confirmButtonColor: "#312B5F" });
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: err,
+        confirmButtonColor: "#2D3250",
+      });
       return;
     }
+
     setLoading(true);
+
     try {
-      // TODO: upload images & save product via API
-      await new Promise((r) => setTimeout(r, 900));
-      Swal.fire({
-        title: "Berhasil",
-        text: "Barang berhasil ditambahkan",
-        icon: "success",
-        confirmButtonColor: "#312B5F",
-      }).then(() => {
-        router.push("/profil?tab=barang-saya");
+      // Step 1: Upload images
+      const uploadedUrls: string[] = [];
+
+      for (const img of images) {
+        const result = await uploadImage(img.file);
+        if (result.success && result.data) {
+          uploadedUrls.push(result.data.url);
+        } else {
+          throw new Error(result.error || "Gagal upload gambar");
+        }
+      }
+
+      // Step 2: Create product
+      const productData: CreateProductRequest = {
+        title: formData.title,
+        description: formData.description,
+        price: Number(formData.price),
+        category_id: formData.category_id,
+        condition: formData.condition,
+        images: uploadedUrls,
+      };
+
+      const result = await apiRequest<Product>("/products", {
+        method: "POST",
+        body: JSON.stringify(productData),
       });
-    } catch {
-      Swal.fire({ icon: "error", title: "Gagal", text: "Terjadi kesalahan saat menyimpan." });
+
+      if (result.success && result.data) {
+        Swal.fire({
+          title: "Berhasil!",
+          text: "Produk berhasil ditambahkan. Silakan pilih paket listing untuk mengaktifkan produk.",
+          icon: "success",
+          confirmButtonColor: "#2D3250",
+        }).then(() => {
+          // Redirect to payment page
+          router.push(`/payment/${result.data!.id}`);
+        });
+      } else {
+        throw new Error(result.error || "Gagal membuat produk");
+      }
+    } catch (error: unknown) {
+      console.error("Submit error:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Gagal",
+        text:
+          error instanceof Error
+            ? error.message
+            : "Terjadi kesalahan saat menyimpan",
+        confirmButtonColor: "#2D3250",
+      });
     } finally {
       setLoading(false);
     }
@@ -122,49 +200,60 @@ export const TambahBarangContent: React.FC = () => {
     >
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-semibold text-gray-800">Tambah Barang</h2>
-          <p className="text-sm text-gray-500">Isi detail lengkap agar pembeli lebih percaya.</p>
+          <h2 className="text-2xl font-semibold text-gray-800">
+            Tambah Barang
+          </h2>
+          <p className="text-sm text-gray-500">
+            Isi detail lengkap agar pembeli lebih percaya.
+          </p>
         </div>
-        <div className="text-sm text-gray-500">Maks. 6 gambar • Format JPG/PNG</div>
+        <div className="text-sm text-gray-500">
+          Maks. 6 gambar • Format JPG/PNG
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Left: images & quick info */}
+          {/* Left: images & category */}
           <div className="md:col-span-1 space-y-4">
-            <label className="block text-sm font-medium text-gray-700">Gambar Produk</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Gambar Produk *
+            </label>
 
             <div className="border border-gray-100 rounded-lg p-3 bg-gray-50">
               <div className="grid grid-cols-3 gap-3">
-                {images.length > 0 ? (
-                  images.map((p, idx) => (
-                    <div key={p.url} className="relative rounded-md overflow-hidden bg-white">
-                      <Image
-                        src={p.url}
-                        alt={`preview-${idx}`}
-                        width={320}
-                        height={240}
-                        className="object-cover w-full h-28"
-                        unoptimized
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removeImage(idx)}
-                        aria-label="Hapus gambar"
-                        className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-1 hover:bg-black/70"
+                {images.length > 0
+                  ? images.map((p, idx) => (
+                      <div
+                        key={p.url}
+                        className="relative rounded-md overflow-hidden bg-white"
                       >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ))
-                ) : (
-                  // placeholder previews from Unsplash
-                  [0, 1, 2].map((i) => (
-                    <div key={i} className="rounded-md bg-gray-100 h-28 flex items-center justify-center text-sm text-gray-400">
-                      Preview
-                    </div>
-                  ))
-                )}
+                        <Image
+                          src={p.url}
+                          alt={`preview-${idx}`}
+                          width={320}
+                          height={240}
+                          className="object-cover w-full h-28"
+                          unoptimized
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeImage(idx)}
+                          aria-label="Hapus gambar"
+                          className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-1 hover:bg-black/70"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))
+                  : [0, 1, 2].map((i) => (
+                      <div
+                        key={i}
+                        className="rounded-md bg-gray-100 h-28 flex items-center justify-center text-sm text-gray-400"
+                      >
+                        Preview
+                      </div>
+                    ))}
               </div>
 
               <div className="mt-3 flex items-center gap-3">
@@ -185,33 +274,60 @@ export const TambahBarangContent: React.FC = () => {
                   className="hidden"
                 />
 
-                <div className="text-xs text-gray-400">Rekomendasi: 800x800px</div>
+                <div className="text-xs text-gray-400">
+                  Rekomendasi: 800x800px
+                </div>
               </div>
             </div>
 
             <div className="rounded-lg border border-gray-100 p-3 bg-white">
-              <label className="block text-xs text-gray-500">Kategori</label>
-                <select
-                  name="kondisiBarang"
-                  value={formData.kondisiBarang}
-                  onChange={handleChange}
-                  className="w-full rounded-md border-gray-200 bg-white text-sm px-3 py-2 text-gray-700"
-                >
-                  <option>Baik</option>
-                  <option>Seperti Baru</option>
-                  <option>Rusak Ringan</option>
-                  <option>Rusak Berat</option>
-                </select>
+              <label className="block text-xs text-gray-500 mb-2">
+                Kategori *
+              </label>
+              <select
+                name="category_id"
+                value={formData.category_id}
+                onChange={handleChange}
+                className="w-full rounded-md border-gray-200 bg-white text-sm px-3 py-2 text-gray-700"
+                required
+              >
+                <option value="">Pilih Kategori</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="rounded-lg border border-gray-100 p-3 bg-white">
+              <label className="block text-xs text-gray-500 mb-2">
+                Kondisi Barang *
+              </label>
+              <select
+                name="condition"
+                value={formData.condition}
+                onChange={handleChange}
+                className="w-full rounded-md border-gray-200 bg-white text-sm px-3 py-2 text-gray-700"
+                required
+              >
+                <option value="baru">Baru</option>
+                <option value="seperti baru">Seperti Baru</option>
+                <option value="bekas baik">Bekas Baik</option>
+                <option value="bekas">Bekas</option>
+              </select>
             </div>
           </div>
 
           {/* Right: main fields */}
           <div className="md:col-span-2 space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Nama Barang</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Nama Barang *
+              </label>
               <Input
-                name="namaBarang"
-                value={formData.namaBarang}
+                name="title"
+                value={formData.title}
                 onChange={handleChange}
                 placeholder="Contoh: MacBook Pro 2019"
                 className="bg-white border-gray-200 text-gray-800 placeholder-gray-400"
@@ -219,38 +335,30 @@ export const TambahBarangContent: React.FC = () => {
               />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Harga</label>
-                <Input
-                  name="harga"
-                  value={formatCurrency(formData.harga)}
-                  onChange={handlePriceChange}
-                  placeholder="0"
-                  className="bg-white border-gray-200 text-gray-800 placeholder-gray-400"
-                  aria-label="Harga"
-                  required
-                />
-                <p className="text-xs text-gray-400 mt-1">Masukkan angka tanpa titik/koma.</p>
-              </div>
-
-              <div className="sm:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Lokasi</label>
-                <Input
-                  name="lokasi"
-                  value={formData.lokasi}
-                  onChange={handleChange}
-                  placeholder="Kota / Kampus"
-                  className="bg-white border-gray-200 text-gray-800 placeholder-gray-400"
-                />
-              </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Harga *
+              </label>
+              <Input
+                name="price"
+                value={formatCurrency(formData.price)}
+                onChange={handlePriceChange}
+                placeholder="0"
+                className="bg-white border-gray-200 text-gray-800 placeholder-gray-400"
+                required
+              />
+              <p className="text-xs text-gray-400 mt-1">
+                Masukkan angka tanpa titik/koma.
+              </p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Deskripsi & Detail</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Deskripsi & Detail *
+              </label>
               <Textarea
-                name="tipe"
-                value={formData.tipe}
+                name="description"
+                value={formData.description}
                 onChange={handleChange}
                 placeholder="Tulis deskripsi singkat: kondisi, aksesoris, kelengkapan, dll."
                 className="bg-white border-gray-200 text-gray-800 placeholder-gray-400 min-h-[180px]"
@@ -258,56 +366,38 @@ export const TambahBarangContent: React.FC = () => {
               />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Nomor Kontak</label>
-                <Input
-                  name="nomorKontak"
-                  value={formData.nomorKontak}
-                  onChange={handleChange}
-                  placeholder="0812xxxx"
-                  className="bg-white border-gray-200 text-gray-800 placeholder-gray-400"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Sosial Media</label>
-                <Input
-                  name="sosialMedia"
-                  value={formData.sosialMedia}
-                  onChange={handleChange}
-                  placeholder="@username atau link"
-                  className="bg-white border-gray-200 text-gray-800 placeholder-gray-400"
-                />
-              </div>
-            </div>
-
             <div className="flex items-center justify-between gap-3 pt-2">
               <div className="text-sm text-gray-500">
-                Semua data akan ditinjau sebelum muncul di marketplace.
+                Produk akan berstatus <strong>pending payment</strong> sampai
+                Anda membayar biaya listing.
               </div>
 
               <div className="flex items-center gap-3">
                 <Button
                   variant="ghost"
                   type="button"
-                  onClick={() =>
+                  onClick={() => {
                     setFormData({
-                      namaBarang: "",
-                      harga: "",
-                      tipe: "",
-                      kondisiBarang: "Baik",
-                      nomorKontak: "",
-                      sosialMedia: "",
-                      lokasi: "",
-                    })
-                  }
+                      title: "",
+                      price: "",
+                      description: "",
+                      category_id: "",
+                      condition: "bekas baik",
+                    });
+                    images.forEach((p) => URL.revokeObjectURL(p.url));
+                    setImages([]);
+                  }}
                   className="px-4 py-2 rounded-full text-gray-700 bg-gray-50 hover:bg-gray-100"
                 >
                   Reset
                 </Button>
 
-                <Button type="submit" size="lg" className="px-6 py-2 rounded-full" disabled={loading}>
+                <Button
+                  type="submit"
+                  size="lg"
+                  className="px-6 py-2 rounded-full"
+                  disabled={loading}
+                >
                   {loading ? "Menyimpan..." : "Tambah Barang"}
                 </Button>
               </div>
