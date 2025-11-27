@@ -35,7 +35,18 @@ export const TambahBarangContent: React.FC = () => {
     const fetchCategories = async () => {
       const result = await apiRequest<Category[]>("/categories");
       if (result.success && result.data) {
-        setCategories(result.data);
+        // Filter categories to match Marketplace
+        const allowedSlugs = [
+          "elektronik",
+          "fashion",
+          "buku",
+          "olahraga",
+          "lainnya",
+        ];
+        const filtered = result.data.filter((cat) =>
+          allowedSlugs.includes(cat.slug)
+        );
+        setCategories(filtered);
       }
     };
     fetchCategories();
@@ -206,9 +217,6 @@ export const TambahBarangContent: React.FC = () => {
           <p className="text-sm text-gray-500">
             Isi detail lengkap agar pembeli lebih percaya.
           </p>
-        </div>
-        <div className="text-sm text-gray-500">
-          Maks. 6 gambar • Format JPG/PNG
         </div>
       </div>
 

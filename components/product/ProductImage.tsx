@@ -6,21 +6,29 @@ import { motion } from "framer-motion";
 type ProductImageProps = {
   imageUrl?: string;
   alt: string;
-  productId?: number;
+  productId?: string | number;
 };
 
 // Daftar Unsplash image IDs yang sama dengan ProductGrid
 const unsplashIds = [
-  'photo-1523275335684-37898b6baf30',
-  'photo-1491553895911-0055eca6402d',
-  'photo-1461749280684-dccba630e2f6',
-  'photo-1512436991641-6745cdb1723f',
-  'photo-1503602642458-232111445657',
+  "photo-1523275335684-37898b6baf30",
+  "photo-1491553895911-0055eca6402d",
+  "photo-1461749280684-dccba630e2f6",
+  "photo-1512436991641-6745cdb1723f",
+  "photo-1503602642458-232111445657",
 ];
 
-export default function ProductImage({ imageUrl, alt, productId = 1 }: ProductImageProps) {
+export default function ProductImage({
+  imageUrl,
+  alt,
+  productId = "1",
+}: ProductImageProps) {
   // Jika tidak ada imageUrl, gunakan Unsplash berdasarkan productId
-  const defaultImageId = unsplashIds[(productId - 1) % unsplashIds.length];
+  const idNum =
+    typeof productId === "number"
+      ? productId
+      : productId.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const defaultImageId = unsplashIds[idNum % unsplashIds.length];
   const defaultImage = `https://images.unsplash.com/${defaultImageId}?auto=format&fit=crop&w=800&q=80`;
   const finalImageUrl = imageUrl || defaultImage;
 
@@ -41,7 +49,8 @@ export default function ProductImage({ imageUrl, alt, productId = 1 }: ProductIm
           className="object-cover"
           onError={(e) => {
             const target = e.target as HTMLImageElement;
-            target.src = "https://placehold.co/800x600/f0f0f0/333?text=Image+Not+Found";
+            target.src =
+              "https://placehold.co/800x600/f0f0f0/333?text=Image+Not+Found";
           }}
         />
       </div>

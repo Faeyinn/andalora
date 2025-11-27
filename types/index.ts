@@ -10,6 +10,7 @@ export type User = {
   whatsapp: string;
   university: string;
   nim: string; // Nomor Induk Mahasiswa (unique)
+  role: "admin" | "user";
   avatar_url?: string;
   created_at: string;
   updated_at: string;

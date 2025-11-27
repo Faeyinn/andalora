@@ -13,12 +13,25 @@ export const AkunContent = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [formData, setFormData] = useState({
-    full_name: user?.full_name || "",
-    phone: user?.phone || "",
-    whatsapp: user?.whatsapp || "",
-    university: user?.university || "",
-    nim: user?.nim || "",
+    full_name: "",
+    phone: "",
+    whatsapp: "",
+    university: "",
+    nim: "",
   });
+
+  // Update form data when user data is available
+  React.useEffect(() => {
+    if (user) {
+      setFormData({
+        full_name: user.full_name || "",
+        phone: user.phone || "",
+        whatsapp: user.whatsapp || "",
+        university: user.university || "",
+        nim: user.nim || "",
+      });
+    }
+  }, [user]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

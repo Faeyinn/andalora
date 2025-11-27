@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
+import { Eye, EyeOff } from "lucide-react";
 
 export const LoginForm = () => {
   const router = useRouter();
@@ -14,6 +15,7 @@ export const LoginForm = () => {
     email: "",
     password: "",
   });
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,14 +49,18 @@ export const LoginForm = () => {
     if (result.success) {
       Swal.fire({
         title: "Berhasil!",
-        text: "Login berhasil, mengarahkan ke marketplace...",
+        text: "Login berhasil",
         icon: "success",
         timer: 1500,
         showConfirmButton: false,
       });
 
       setTimeout(() => {
-        router.push("/marketplace");
+        if (result.user?.role === "admin") {
+          router.push("/admin");
+        } else {
+          router.push("/marketplace");
+        }
       }, 1500);
     } else {
       Swal.fire({
@@ -91,15 +97,22 @@ export const LoginForm = () => {
             />
           </div>
 
-          <div>
+          <div className="relative">
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               name="password"
               value={formData.password}
               onChange={handleInputChange}
               placeholder="Password"
-              className="w-full px-4 py-3 bg-gray-100 text-gray-500 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all placeholder-gray-500"
+              className="w-full px-4 py-3 bg-gray-100 text-gray-500 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all placeholder-gray-500 pr-10"
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+            >
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
           </div>
 
           <button

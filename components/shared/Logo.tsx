@@ -10,7 +10,7 @@ export const Logo = () => {
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <Link href="/" className="flex items-center gap-2 group select-none">
+      <Link href="/marketplace" className="flex items-center gap-2 group select-none">
         <span className="text-xl md:text-2xl tracking-tight">
           <span className="font-extrabold text-black">ANDA</span>
           <span className="font-normal text-gray-800">LORA</span>

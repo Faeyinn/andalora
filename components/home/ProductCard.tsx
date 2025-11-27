@@ -69,9 +69,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     }
   };
 
-  const handleWhatsApp = (e: React.MouseEvent) => {
+  const handleWhatsApp = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (user?.whatsapp) {
+      // Notify seller via API (fire and forget)
+      fetch(`/api/products/${id}/contact`, { method: "POST" }).catch((err) =>
+        console.error("Failed to notify seller:", err)
+      );
+
       const message = `Halo, saya tertarik dengan produk "${productName}" seharga Rp ${price.toLocaleString(
         "id-ID"
       )}`;

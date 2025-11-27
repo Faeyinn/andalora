@@ -19,7 +19,7 @@ interface AuthContextType {
   signIn: (
     email: string,
     password: string
-  ) => Promise<{ success: boolean; error?: string }>;
+  ) => Promise<{ success: boolean; error?: string; user?: User }>;
   signOut: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
@@ -64,12 +64,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) {
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN" || event === "USER_UPDATED") {
         fetchUser();
-      } else {
+      } else if (event === "SIGNED_OUT") {
         setUser(null);
       }
+      // Ignore TOKEN_REFRESHED to prevent loops with middleware
     });
 
     return () => {
@@ -119,7 +120,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (result.success) {
         setUser(result.data.user);
-        return { success: true };
+        return { success: true, user: result.data.user };
       } else {
         return { success: false, error: result.error };
       }

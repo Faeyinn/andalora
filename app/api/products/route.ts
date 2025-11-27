@@ -24,21 +24,39 @@ export async function GET(request: Request) {
     const supabase = await createClient();
 
     // Build query
-    let query = supabase
-      .from("products")
-      .select(
-        `
+    // Check if category is UUID
+    const isUUID =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        category
+      );
+
+    // Build query
+    // If filtering by slug, use inner join to allow filtering on joined table
+    const selectQuery =
+      category && !isUUID
+        ? `
+        *,
+        user:users(id, full_name, whatsapp, university),
+        category:categories!inner(id, name, slug)
+      `
+        : `
         *,
         user:users(id, full_name, whatsapp, university),
         category:categories(id, name, slug)
-      `,
-        { count: "exact" }
-      )
+      `;
+
+    let query = supabase
+      .from("products")
+      .select(selectQuery, { count: "exact" })
       .eq("status", "active");
 
     // Apply filters
     if (category) {
-      query = query.eq("category_id", category);
+      if (isUUID) {
+        query = query.eq("category_id", category);
+      } else {
+        query = query.eq("category.slug", category);
+      }
     }
 
     if (search) {
@@ -88,12 +106,14 @@ export async function GET(request: Request) {
 
     return NextResponse.json({
       success: true,
-      data: data || [],
-      pagination: {
-        page,
-        limit,
-        total: count || 0,
-        total_pages: Math.ceil((count || 0) / limit),
+      data: {
+        data: data || [],
+        pagination: {
+          page,
+          limit,
+          total: count || 0,
+          total_pages: Math.ceil((count || 0) / limit),
+        },
       },
     });
   } catch (error) {

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import type { Product, ProductsQuery, PaginatedResponse } from "@/types";
 import { apiRequest } from "@/lib/utils/api";
+import { createClient } from "@/lib/supabase/client";
 
 export function useProducts(query?: ProductsQuery) {
   const [products, setProducts] = useState<Product[]>([]);
@@ -26,6 +27,7 @@ export function useProducts(query?: ProductsQuery) {
 
   const fetchProducts = useCallback(
     async (customQuery?: ProductsQuery) => {
+      await Promise.resolve(); // Avoid synchronous setState warning
       setLoading(true);
       setError(null);
 
@@ -73,6 +75,23 @@ export function useProducts(query?: ProductsQuery) {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchProducts();
+
+    // Realtime subscription
+    const supabase = createClient();
+    const channel = supabase
+      .channel("public:products")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "products" },
+        () => {
+          fetchProducts();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [fetchProducts]);
 
   return {
@@ -90,6 +109,7 @@ export function useProduct(id: string) {
   const [error, setError] = useState<string | null>(null);
 
   const fetchProduct = useCallback(async () => {
+    await Promise.resolve(); // Avoid synchronous setState warning
     setLoading(true);
     setError(null);
 
@@ -125,6 +145,7 @@ export function useMyProducts() {
   const [error, setError] = useState<string | null>(null);
 
   const fetchMyProducts = useCallback(async () => {
+    await Promise.resolve(); // Avoid synchronous setState warning
     setLoading(true);
     setError(null);
 

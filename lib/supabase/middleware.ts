@@ -33,7 +33,7 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   // Protected routes - require authentication
-  const protectedPaths = ["/profil", "/payment"];
+  const protectedPaths = ["/profil", "/payment", "/admin"];
   const isProtectedPath = protectedPaths.some((path) =>
     request.nextUrl.pathname.startsWith(path)
   );
@@ -48,9 +48,7 @@ export async function updateSession(request: NextRequest) {
 
   // Redirect authenticated users away from auth pages
   const authPaths = ["/login", "/register"];
-  const isAuthPath = authPaths.some((path) =>
-    request.nextUrl.pathname.startsWith(path)
-  );
+  const isAuthPath = authPaths.includes(request.nextUrl.pathname);
 
   if (isAuthPath && user) {
     const url = request.nextUrl.clone();

@@ -3,27 +3,52 @@ import ProductImage from "@/components/product/ProductImage";
 import ProductInfo from "@/components/product/ProductInfo";
 import RelatedProducts from "@/components/product/RelatedProducts";
 import Footer from "@/components/shared/Footer";
-import { getProductById, relatedProducts } from "@/lib/dummy-data";
 import { notFound } from "next/navigation";
-
-// Halaman ini bisa menjadi Server Component, karena data bisa di-fetch di sini
-// dan komponen 'use client' bisa di-import.
+import { createClient } from "@/lib/supabase/server";
+import { Product } from "@/types";
 
 type ProductPageParams = {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 };
 
 export default async function ProductDetailPage({ params }: ProductPageParams) {
   const { id } = await params;
-  const product = getProductById(id);
+  const supabase = await createClient();
 
-  if (!product) {
+  // Fetch product details
+  const { data: product, error } = await supabase
+    .from("products")
+    .select(
+      `
+      *,
+      user:users(id, full_name, whatsapp, university),
+      category:categories(id, name, slug)
+    `
+    )
+    .eq("id", id)
+    .single();
+
+  if (error || !product) {
+    console.error("Error fetching product:", error);
     notFound();
   }
 
-  const related = relatedProducts;
+  // Fetch related products (same category, exclude current)
+  const { data: related } = await supabase
+    .from("products")
+    .select(
+      `
+      *,
+      user:users(id, full_name, whatsapp),
+      category:categories(id, name, slug)
+    `
+    )
+    .eq("category_id", product.category_id)
+    .neq("id", id)
+    .eq("status", "active")
+    .limit(4);
 
   return (
     <div className="flex min-h-screen flex-col bg-gray-50">
@@ -35,12 +60,18 @@ export default async function ProductDetailPage({ params }: ProductPageParams) {
         <div className="w-full px-4 py-8 sm:px-6 lg:px-8 lg:py-16">
           {/* Bagian Detail Produk */}
           <div className="flex w-full flex-col lg:flex-row">
-            <ProductImage imageUrl={product.imageUrl} alt={product.name} />
-            <ProductInfo product={product} />
+            <ProductImage
+              imageUrl={product.images?.[0]}
+              alt={product.title}
+              productId={product.id}
+            />
+            <ProductInfo product={product as Product} />
           </div>
 
           {/* Bagian Produk Terkait */}
-          <RelatedProducts products={related} />
+          {related && related.length > 0 && (
+            <RelatedProducts products={related as Product[]} />
+          )}
         </div>
       </main>
 

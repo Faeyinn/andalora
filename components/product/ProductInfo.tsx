@@ -28,8 +28,17 @@ export default function ProductInfo({ product }: ProductInfoProps) {
       cancelButtonText: "Batal",
     }).then((result) => {
       if (result.isConfirmed) {
-        // Menggunakan useRouter untuk navigasi dinamis
-        router.push(`/chat/${product.seller}`);
+        if (product.user?.whatsapp) {
+          const message = `Halo, saya tertarik dengan produk "${product.title}" seharga Rp ${product.price.toLocaleString(
+            "id-ID"
+          )}`;
+          const whatsappUrl = `https://wa.me/${product.user.whatsapp}?text=${encodeURIComponent(
+            message
+          )}`;
+          window.open(whatsappUrl, "_blank");
+        } else {
+          Swal.fire("Info", "Nomor WhatsApp penjual tidak tersedia", "info");
+        }
       }
     });
   };
@@ -74,10 +83,12 @@ export default function ProductInfo({ product }: ProductInfoProps) {
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <p className="text-lg text-gray-600">{product.seller}</p>
-      <h1 className="text-4xl font-bold text-gray-900">{product.name}</h1>
+      <p className="text-lg text-gray-600">
+        {product.user?.full_name || "Penjual"}
+      </p>
+      <h1 className="text-4xl font-bold text-gray-900">{product.title}</h1>
       <p className="text-3xl font-medium text-gray-800">
-        ${product.price.toFixed(2)}
+        Rp {product.price.toLocaleString("id-ID")}
       </p>
       <p className="text-base text-gray-600">{product.description}</p>
 
