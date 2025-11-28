@@ -17,7 +17,15 @@ export default function ProfilPage() {
       <Navbar />
 
       {/* client-side profile area */}
-      <ProfilClient />
+      <React.Suspense
+        fallback={
+          <div className="min-h-screen flex items-center justify-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2D3250]"></div>
+          </div>
+        }
+      >
+        <ProfilClient />
+      </React.Suspense>
 
       <Footer />
     </div>
