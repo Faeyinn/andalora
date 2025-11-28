@@ -88,6 +88,8 @@ export default function ProductCard({
       active: { label: "Aktif", color: "bg-green-500" },
       pending_payment: { label: "Menunggu Pembayaran", color: "bg-orange-500" },
       sold: { label: "Terjual", color: "bg-gray-500" },
+      expired: { label: "Kadaluarsa", color: "bg-red-500" },
+      archived: { label: "Diarsipkan", color: "bg-gray-500" },
     };
 
     const config =

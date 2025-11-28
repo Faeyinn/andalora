@@ -91,6 +91,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       active: { label: "Aktif", color: "bg-green-500" },
       expired: { label: "Kadaluarsa", color: "bg-red-500" },
       sold: { label: "Terjual", color: "bg-blue-500" },
+      archived: { label: "Diarsipkan", color: "bg-gray-500" },
     };
     const config = statusConfig[status] || {
       label: status,
