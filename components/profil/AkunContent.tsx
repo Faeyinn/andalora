@@ -4,8 +4,20 @@ import React, { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import Swal from "sweetalert2";
 import Image from "next/image";
-import { Camera, Trash2, User } from "lucide-react";
+import {
+  Camera,
+  Trash2,
+  User,
+  Mail,
+  Phone,
+  MessageCircle,
+  School,
+  CreditCard,
+  Save,
+  X,
+} from "lucide-react";
 import { uploadImage, deleteImage } from "@/lib/utils/api";
+import { motion } from "framer-motion";
 
 export const AkunContent = () => {
   const { user, refreshUser } = useAuth();
@@ -104,23 +116,17 @@ export const AkunContent = () => {
           text: "Profil berhasil diperbarui",
           icon: "success",
           confirmButtonColor: "#2D3250",
+          timer: 1500,
+          showConfirmButton: false,
         });
       } else {
-        Swal.fire({
-          title: "Gagal!",
-          text: result.error || "Gagal memperbarui profil",
-          icon: "error",
-          confirmButtonColor: "#2D3250",
-        });
+        throw new Error(result.error || "Gagal memperbarui profil");
       }
     } catch (error) {
       console.error("Update profile error:", error);
       Swal.fire({
         title: "Error!",
-        text:
-          error instanceof Error
-            ? error.message
-            : "Terjadi kesalahan saat memperbarui profil",
+        text: "Terjadi kesalahan saat memperbarui profil",
         icon: "error",
         confirmButtonColor: "#2D3250",
       });
@@ -200,8 +206,7 @@ export const AkunContent = () => {
       console.error("Avatar upload error:", error);
       Swal.fire({
         title: "Gagal!",
-        text:
-          error instanceof Error ? error.message : "Gagal upload foto profil",
+        text: "Gagal upload foto profil",
         icon: "error",
         confirmButtonColor: "#2D3250",
       });
@@ -230,42 +235,28 @@ export const AkunContent = () => {
     setIsUploadingAvatar(true);
 
     try {
-      // Delete from storage
       await deleteImage(user.avatar_url);
-
-      // Update profile to remove avatar URL
       const response = await fetch("/api/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ avatar_url: null }),
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      if (!response.ok) throw new Error("Failed to update profile");
 
-      const apiResult = await response.json();
-
-      if (apiResult.success) {
-        await refreshUser();
-        Swal.fire({
-          title: "Berhasil!",
-          text: "Foto profil berhasil dihapus",
-          icon: "success",
-          timer: 1500,
-          showConfirmButton: false,
-        });
-      } else {
-        throw new Error(apiResult.error || "Gagal hapus foto profil");
-      }
+      await refreshUser();
+      Swal.fire({
+        title: "Berhasil!",
+        text: "Foto profil berhasil dihapus",
+        icon: "success",
+        timer: 1500,
+        showConfirmButton: false,
+      });
     } catch (error) {
       console.error("Delete avatar error:", error);
       Swal.fire({
         title: "Gagal!",
-        text:
-          error instanceof Error
-            ? error.message
-            : "Gagal menghapus foto profil",
+        text: "Gagal menghapus foto profil",
         icon: "error",
         confirmButtonColor: "#2D3250",
       });
@@ -276,114 +267,102 @@ export const AkunContent = () => {
 
   if (!user) {
     return (
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <div className="flex justify-center items-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2D3250]"></div>
-        </div>
+      <div className="flex justify-center items-center py-20">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-      {/* Header with gradient */}
-      <div className="bg-gradient-to-r from-[#2D3250] to-[#424769] px-8 py-12 relative">
-        <div className="absolute inset-0 bg-black/10"></div>
-        <div className="relative z-10">
-          <h2 className="text-3xl font-bold text-white mb-2">Informasi Akun</h2>
-          <p className="text-gray-200">Kelola informasi profil Anda</p>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className="space-y-6"
+    >
+      {/* Header Card */}
+      <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="h-32 bg-gradient-to-r from-purple-600 to-indigo-600 relative">
+          <div className="absolute inset-0 bg-black/10"></div>
         </div>
-      </div>
 
-      <div className="px-8 py-6">
-        {/* Avatar Section */}
-        <div className="flex items-center gap-6 mb-8 pb-8 border-b border-gray-200">
-          <div className="relative">
-            <div className="w-32 h-32 rounded-full overflow-hidden bg-gradient-to-br from-[#2D3250] to-[#424769] flex items-center justify-center shadow-lg">
-              {user.avatar_url ? (
-                <Image
-                  src={user.avatar_url}
-                  alt={user.full_name}
-                  width={128}
-                  height={128}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <User className="w-16 h-16 text-white" />
-              )}
-            </div>
+        <div className="px-8 pb-8">
+          <div className="relative -mt-16 mb-6 flex justify-between items-end">
+            <div className="relative group">
+              <div className="w-32 h-32 rounded-full border-4 border-white shadow-lg overflow-hidden bg-gray-100 relative">
+                {user.avatar_url ? (
+                  <Image
+                    src={user.avatar_url}
+                    alt={user.full_name}
+                    fill
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-purple-100 text-purple-600">
+                    <User size={48} />
+                  </div>
+                )}
 
-            {/* Upload button */}
-            <label
-              htmlFor="avatar-upload"
-              className={`absolute bottom-0 right-0 bg-white rounded-full p-2 shadow-lg cursor-pointer hover:bg-gray-50 transition-colors border-2 border-gray-200 ${
-                isUploadingAvatar ? "opacity-50 cursor-not-allowed" : ""
-              }`}
-            >
-              <Camera className="w-5 h-5 text-gray-700" />
-              <input
-                id="avatar-upload"
-                type="file"
-                accept="image/*"
-                onChange={handleAvatarUpload}
-                disabled={isUploadingAvatar}
-                className="hidden"
-              />
-            </label>
-          </div>
+                {/* Upload Overlay */}
+                <label className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                  <Camera className="text-white" size={24} />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAvatarUpload}
+                    disabled={isUploadingAvatar}
+                    className="hidden"
+                  />
+                </label>
+              </div>
 
-          <div className="flex-1">
-            <h3 className="text-2xl font-bold text-gray-800 mb-1">
-              {user.full_name}
-            </h3>
-            <p className="text-gray-500 mb-3">{user.email}</p>
-            <div className="flex gap-3">
               {user.avatar_url && (
                 <button
                   onClick={handleDeleteAvatar}
-                  disabled={isUploadingAvatar}
-                  className="inline-flex items-center gap-2 px-4 py-2 text-sm bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="absolute bottom-0 right-0 bg-red-100 text-red-600 p-2 rounded-full shadow-md hover:bg-red-200 transition-colors"
+                  title="Hapus Foto"
                 >
-                  <Trash2 className="w-4 h-4" />
-                  Hapus Foto
-                </button>
-              )}
-              {!isEditing && (
-                <button
-                  onClick={handleEdit}
-                  className="px-4 py-2 text-sm bg-[#2D3250] text-white rounded-lg hover:bg-[#1f2337] transition-colors"
-                >
-                  Edit Profil
+                  <Trash2 size={16} />
                 </button>
               )}
             </div>
+
+            {!isEditing && (
+              <button
+                onClick={handleEdit}
+                className="px-6 py-2.5 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-colors font-medium shadow-lg shadow-gray-900/20"
+              >
+                Edit Profil
+              </button>
+            )}
+          </div>
+
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">
+              {user.full_name}
+            </h1>
+            <p className="text-gray-500">{user.email}</p>
           </div>
         </div>
+      </div>
 
-        {/* Form Fields */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Email (read-only) */}
-          <div className="md:col-span-2">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Email
-            </label>
-            <div className="relative">
-              <input
-                type="email"
-                value={user.email}
-                disabled
-                className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl text-gray-500 cursor-not-allowed"
-              />
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded">
-                Tidak dapat diubah
-              </span>
-            </div>
-          </div>
+      {/* Form Card */}
+      <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8">
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-xl font-bold text-gray-900">Informasi Pribadi</h2>
+          {isEditing && (
+            <span className="text-sm text-purple-600 font-medium bg-purple-50 px-3 py-1 rounded-full">
+              Mode Edit
+            </span>
+          )}
+        </div>
 
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
           {/* Full Name */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Nama Lengkap *
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+              <User size={16} className="text-gray-400" />
+              Nama Lengkap
             </label>
             <input
               type="text"
@@ -391,37 +370,33 @@ export const AkunContent = () => {
               value={formData.full_name}
               onChange={handleInputChange}
               disabled={!isEditing}
-              className={`w-full px-4 py-3 border-2 rounded-xl transition-all ${
+              className={`w-full px-4 py-3 rounded-xl border transition-all ${
                 isEditing
-                  ? "bg-white border-[#2D3250] focus:outline-none focus:ring-2 focus:ring-[#2D3250]/20"
-                  : "bg-gray-50 border-gray-200 text-gray-700 cursor-not-allowed"
+                  ? "border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 bg-white"
+                  : "border-transparent bg-gray-50 text-gray-600"
               }`}
             />
           </div>
 
-          {/* NIM */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              NIM *
+          {/* Email */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+              <Mail size={16} className="text-gray-400" />
+              Email
             </label>
             <input
-              type="text"
-              name="nim"
-              value={formData.nim}
-              onChange={handleInputChange}
-              disabled={!isEditing}
-              className={`w-full px-4 py-3 border-2 rounded-xl transition-all ${
-                isEditing
-                  ? "bg-white border-[#2D3250] focus:outline-none focus:ring-2 focus:ring-[#2D3250]/20"
-                  : "bg-gray-50 border-gray-200 text-gray-700 cursor-not-allowed"
-              }`}
+              type="email"
+              value={user.email}
+              disabled
+              className="w-full px-4 py-3 rounded-xl border border-transparent bg-gray-50 text-gray-500 cursor-not-allowed"
             />
           </div>
 
           {/* Phone */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              No. Telepon *
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+              <Phone size={16} className="text-gray-400" />
+              No. Telepon
             </label>
             <input
               type="tel"
@@ -429,18 +404,19 @@ export const AkunContent = () => {
               value={formData.phone}
               onChange={handleInputChange}
               disabled={!isEditing}
-              className={`w-full px-4 py-3 border-2 rounded-xl transition-all ${
+              className={`w-full px-4 py-3 rounded-xl border transition-all ${
                 isEditing
-                  ? "bg-white border-[#2D3250] focus:outline-none focus:ring-2 focus:ring-[#2D3250]/20"
-                  : "bg-gray-50 border-gray-200 text-gray-700 cursor-not-allowed"
+                  ? "border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 bg-white"
+                  : "border-transparent bg-gray-50 text-gray-600"
               }`}
             />
           </div>
 
           {/* WhatsApp */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              No. WhatsApp *
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+              <MessageCircle size={16} className="text-gray-400" />
+              WhatsApp
             </label>
             <input
               type="tel"
@@ -448,18 +424,19 @@ export const AkunContent = () => {
               value={formData.whatsapp}
               onChange={handleInputChange}
               disabled={!isEditing}
-              className={`w-full px-4 py-3 border-2 rounded-xl transition-all ${
+              className={`w-full px-4 py-3 rounded-xl border transition-all ${
                 isEditing
-                  ? "bg-white border-[#2D3250] focus:outline-none focus:ring-2 focus:ring-[#2D3250]/20"
-                  : "bg-gray-50 border-gray-200 text-gray-700 cursor-not-allowed"
+                  ? "border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 bg-white"
+                  : "border-transparent bg-gray-50 text-gray-600"
               }`}
             />
           </div>
 
           {/* University */}
-          <div className="md:col-span-2">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Universitas *
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+              <School size={16} className="text-gray-400" />
+              Universitas
             </label>
             <input
               type="text"
@@ -467,10 +444,30 @@ export const AkunContent = () => {
               value={formData.university}
               onChange={handleInputChange}
               disabled={!isEditing}
-              className={`w-full px-4 py-3 border-2 rounded-xl transition-all ${
+              className={`w-full px-4 py-3 rounded-xl border transition-all ${
                 isEditing
-                  ? "bg-white border-[#2D3250] focus:outline-none focus:ring-2 focus:ring-[#2D3250]/20"
-                  : "bg-gray-50 border-gray-200 text-gray-700 cursor-not-allowed"
+                  ? "border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 bg-white"
+                  : "border-transparent bg-gray-50 text-gray-600"
+              }`}
+            />
+          </div>
+
+          {/* NIM */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+              <CreditCard size={16} className="text-gray-400" />
+              NIM
+            </label>
+            <input
+              type="text"
+              name="nim"
+              value={formData.nim}
+              onChange={handleInputChange}
+              disabled={!isEditing}
+              className={`w-full px-4 py-3 rounded-xl border transition-all ${
+                isEditing
+                  ? "border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 bg-white"
+                  : "border-transparent bg-gray-50 text-gray-600"
               }`}
             />
           </div>
@@ -478,24 +475,36 @@ export const AkunContent = () => {
 
         {/* Action Buttons */}
         {isEditing && (
-          <div className="flex gap-3 pt-8 mt-8 border-t border-gray-200">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex gap-4 pt-8 mt-8 border-t border-gray-100"
+          >
             <button
               onClick={handleCancel}
               disabled={isLoading}
-              className="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-medium"
             >
+              <X size={18} />
               Batal
             </button>
             <button
               onClick={handleSave}
               disabled={isLoading}
-              className="flex-1 px-6 py-3 bg-[#2D3250] text-white rounded-xl hover:bg-[#1f2337] transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors font-medium shadow-lg shadow-purple-500/30"
             >
-              {isLoading ? "Menyimpan..." : "Simpan Perubahan"}
+              {isLoading ? (
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <>
+                  <Save size={18} />
+                  Simpan Perubahan
+                </>
+              )}
             </button>
-          </div>
+          </motion.div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 };

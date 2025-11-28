@@ -5,14 +5,16 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { Navbar } from "@/components/shared/Navbar";
 import { createClient } from "@/lib/supabase/client";
-import { Footer } from "@/components/home/Footer";
-import { motion } from "framer-motion";
+import Footer from "@/components/shared/Footer";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Bell,
-  CheckCircle,
   Info,
   MessageSquare,
   ShoppingBag,
+  CheckCheck,
+  Clock,
+  ChevronRight,
 } from "lucide-react";
 
 interface Notification {
@@ -138,23 +140,41 @@ export default function NotificationsPage() {
       case "transaction":
         return <ShoppingBag className="text-green-500" size={24} />;
       default:
-        return <Info className="text-gray-500" size={24} />;
+        return <Info className="text-purple-500" size={24} />;
+    }
+  };
+
+  const getIconBg = (type: string) => {
+    switch (type) {
+      case "support":
+        return "bg-blue-100";
+      case "transaction":
+        return "bg-green-100";
+      default:
+        return "bg-purple-100";
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-gray-50 flex flex-col selection:bg-purple-500/30">
       <Navbar />
 
       <main className="flex-grow container mx-auto px-4 py-8 mt-20">
-        <div className="max-w-2xl mx-auto">
-          <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">Notifikasi</h1>
+        <div className="max-w-3xl mx-auto">
+          {/* Header */}
+          <div className="flex justify-between items-end mb-8">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                Notifikasi
+              </h1>
+              <p className="text-gray-500">Update terbaru aktivitas Anda</p>
+            </div>
             {notifications.some((n) => !n.is_read) && (
               <button
                 onClick={markAllAsRead}
-                className="text-sm text-[#2D3250] hover:underline font-medium"
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-purple-600 bg-purple-50 rounded-full hover:bg-purple-100 transition-colors"
               >
+                <CheckCheck size={16} />
                 Tandai semua dibaca
               </button>
             )}
@@ -162,75 +182,90 @@ export default function NotificationsPage() {
 
           <div className="space-y-4">
             {isLoading ? (
-              <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2D3250] mx-auto"></div>
+              <div className="flex flex-col items-center justify-center py-20">
+                <div className="w-12 h-12 border-4 border-purple-100 border-t-purple-600 rounded-full animate-spin mb-4" />
+                <p className="text-gray-500">Memuat notifikasi...</p>
               </div>
             ) : notifications.length === 0 ? (
-              <div className="bg-white rounded-2xl p-12 text-center shadow-sm border border-gray-100">
-                <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Bell className="w-10 h-10 text-gray-400" />
+              <div className="bg-white rounded-3xl p-16 text-center shadow-sm border border-gray-100">
+                <div className="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Bell className="w-12 h-12 text-gray-300" />
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">
                   Tidak ada notifikasi
                 </h3>
                 <p className="text-gray-500">
-                  Anda akan melihat update penting di sini.
+                  Anda akan melihat update penting di sini saat ada aktivitas
+                  baru.
                 </p>
               </div>
             ) : (
-              notifications.map((notification) => (
-                <motion.div
-                  key={notification.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  onClick={() => handleNotificationClick(notification)}
-                  className={`p-4 rounded-xl border cursor-pointer transition-all hover:shadow-md flex gap-4 ${
-                    notification.is_read
-                      ? "bg-white border-gray-100"
-                      : "bg-blue-50 border-blue-100"
-                  }`}
-                >
-                  <div
-                    className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
-                      notification.is_read ? "bg-gray-100" : "bg-white"
+              <AnimatePresence mode="popLayout">
+                {notifications.map((notification, index) => (
+                  <motion.div
+                    key={notification.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ delay: index * 0.05 }}
+                    onClick={() => handleNotificationClick(notification)}
+                    className={`group relative p-5 rounded-2xl border cursor-pointer transition-all hover:shadow-lg hover:scale-[1.01] ${
+                      notification.is_read
+                        ? "bg-white border-gray-100"
+                        : "bg-white border-purple-200 shadow-sm ring-1 ring-purple-100"
                     }`}
                   >
-                    {getIcon(notification.type)}
-                  </div>
-                  <div className="flex-grow">
-                    <div className="flex justify-between items-start mb-1">
-                      <h3
-                        className={`font-semibold ${
-                          notification.is_read
-                            ? "text-gray-900"
-                            : "text-[#2D3250]"
-                        }`}
+                    {!notification.is_read && (
+                      <div className="absolute top-5 right-5 w-3 h-3 rounded-full bg-purple-500 ring-4 ring-purple-100" />
+                    )}
+
+                    <div className="flex gap-5">
+                      <div
+                        className={`w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 ${getIconBg(
+                          notification.type
+                        )}`}
                       >
-                        {notification.title}
-                      </h3>
-                      <span className="text-xs text-gray-500 whitespace-nowrap ml-2">
-                        {new Date(notification.created_at).toLocaleDateString(
-                          "id-ID",
-                          {
-                            day: "numeric",
-                            month: "short",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          }
-                        )}
-                      </span>
+                        {getIcon(notification.type)}
+                      </div>
+
+                      <div className="flex-grow pr-8">
+                        <div className="flex justify-between items-start mb-1">
+                          <h3
+                            className={`font-bold text-lg ${
+                              notification.is_read
+                                ? "text-gray-900"
+                                : "text-gray-900"
+                            }`}
+                          >
+                            {notification.title}
+                          </h3>
+                        </div>
+
+                        <p className="text-gray-600 leading-relaxed mb-3">
+                          {notification.message}
+                        </p>
+
+                        <div className="flex items-center gap-2 text-xs text-gray-400 font-medium">
+                          <Clock size={14} />
+                          {new Date(notification.created_at).toLocaleDateString(
+                            "id-ID",
+                            {
+                              day: "numeric",
+                              month: "short",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            }
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <ChevronRight className="text-gray-300" />
+                      </div>
                     </div>
-                    <p className="text-gray-600 text-sm line-clamp-2">
-                      {notification.message}
-                    </p>
-                  </div>
-                  {!notification.is_read && (
-                    <div className="flex items-center">
-                      <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                    </div>
-                  )}
-                </motion.div>
-              ))
+                  </motion.div>
+                ))}
+              </AnimatePresence>
             )}
           </div>
         </div>

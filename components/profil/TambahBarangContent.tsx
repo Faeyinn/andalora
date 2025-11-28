@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Upload, X } from "lucide-react";
+import { Upload, X, PlusCircle, AlertCircle, CheckCircle2 } from "lucide-react";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 import { uploadImage, apiRequest } from "@/lib/utils/api";
@@ -35,7 +35,6 @@ export const TambahBarangContent: React.FC = () => {
     const fetchCategories = async () => {
       const result = await apiRequest<Category[]>("/categories");
       if (result.success && result.data) {
-        // Filter categories to match Marketplace
         const allowedSlugs = [
           "elektronik",
           "fashion",
@@ -54,7 +53,6 @@ export const TambahBarangContent: React.FC = () => {
 
   useEffect(() => {
     return () => {
-      // cleanup object URLs
       images.forEach((p) => URL.revokeObjectURL(p.url));
     };
   }, [images]);
@@ -75,9 +73,8 @@ export const TambahBarangContent: React.FC = () => {
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
-    const files = Array.from(e.target.files).slice(0, 6);
+    const files = Array.from(e.target.files).slice(0, 6 - images.length);
 
-    // Validate file types
     const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
     const invalidFiles = files.filter((f) => !validTypes.includes(f.type));
 
@@ -95,9 +92,8 @@ export const TambahBarangContent: React.FC = () => {
       file: f,
       url: URL.createObjectURL(f),
     }));
-    // revoke old urls
-    images.forEach((p) => URL.revokeObjectURL(p.url));
-    setImages(previews);
+
+    setImages((prev) => [...prev, ...previews]);
     e.currentTarget.value = "";
   };
 
@@ -146,7 +142,6 @@ export const TambahBarangContent: React.FC = () => {
     setLoading(true);
 
     try {
-      // Step 1: Upload images
       const uploadedUrls: string[] = [];
 
       for (const img of images) {
@@ -158,7 +153,6 @@ export const TambahBarangContent: React.FC = () => {
         }
       }
 
-      // Step 2: Create product
       const productData: CreateProductRequest = {
         title: formData.title,
         description: formData.description,
@@ -180,7 +174,6 @@ export const TambahBarangContent: React.FC = () => {
           icon: "success",
           confirmButtonColor: "#2D3250",
         }).then(() => {
-          // Redirect to payment page
           router.push(`/payment/${result.data!.id}`);
         });
       } else {
@@ -204,100 +197,118 @@ export const TambahBarangContent: React.FC = () => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: 10 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.28 }}
-      className="bg-white rounded-2xl shadow-sm p-6 md:p-8"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className="max-w-4xl mx-auto"
     >
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h2 className="text-2xl font-semibold text-gray-800">
-            Tambah Barang
-          </h2>
-          <p className="text-sm text-gray-500">
-            Isi detail lengkap agar pembeli lebih percaya.
-          </p>
-        </div>
+      <div className="mb-8">
+        <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+          <PlusCircle className="text-purple-600" />
+          Jual Barang
+        </h2>
+        <p className="text-gray-500 mt-1">
+          Isi detail barang Anda dengan lengkap untuk menarik pembeli.
+        </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Left: images & category */}
-          <div className="md:col-span-1 space-y-4">
-            <label className="block text-sm font-medium text-gray-700">
-              Gambar Produk *
-            </label>
-
-            <div className="border border-gray-100 rounded-lg p-3 bg-gray-50">
-              <div className="grid grid-cols-3 gap-3">
-                {images.length > 0
-                  ? images.map((p, idx) => (
-                      <div
-                        key={p.url}
-                        className="relative rounded-md overflow-hidden bg-white"
-                      >
-                        <Image
-                          src={p.url}
-                          alt={`preview-${idx}`}
-                          width={320}
-                          height={240}
-                          className="object-cover w-full h-28"
-                          unoptimized
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeImage(idx)}
-                          aria-label="Hapus gambar"
-                          className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-1 hover:bg-black/70"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-                    ))
-                  : [0, 1, 2].map((i) => (
-                      <div
-                        key={i}
-                        className="rounded-md bg-gray-100 h-28 flex items-center justify-center text-sm text-gray-400"
-                      >
-                        Preview
-                      </div>
-                    ))}
-              </div>
-
-              <div className="mt-3 flex items-center gap-3">
-                <label
-                  htmlFor="image-upload"
-                  className="inline-flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-md text-sm cursor-pointer hover:bg-gray-50"
+      <form onSubmit={handleSubmit} className="space-y-8">
+        {/* Image Upload Section */}
+        <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            Foto Produk
+          </h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {images.map((img, idx) => (
+              <div
+                key={idx}
+                className="relative aspect-square rounded-xl overflow-hidden group border border-gray-200"
+              >
+                <Image
+                  src={img.url}
+                  alt={`Preview ${idx}`}
+                  fill
+                  className="object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={() => removeImage(idx)}
+                  className="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
                 >
-                  <Upload className="w-4 h-4" />
-                  <span className="text-sm text-gray-700">Upload Gambar</span>
-                </label>
+                  <X size={14} />
+                </button>
+              </div>
+            ))}
 
+            {images.length < 6 && (
+              <label className="aspect-square rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer hover:border-purple-500 hover:bg-purple-50 transition-all group">
+                <div className="bg-gray-100 p-3 rounded-full mb-2 group-hover:bg-white group-hover:text-purple-600 transition-colors">
+                  <Upload
+                    size={24}
+                    className="text-gray-400 group-hover:text-purple-600"
+                  />
+                </div>
+                <span className="text-sm font-medium text-gray-500 group-hover:text-purple-600">
+                  Upload Foto
+                </span>
                 <input
-                  id="image-upload"
                   type="file"
                   accept="image/*"
                   multiple
                   onChange={handleImageUpload}
                   className="hidden"
                 />
+              </label>
+            )}
+          </div>
+          <p className="text-xs text-gray-400 mt-4 flex items-center gap-1">
+            <AlertCircle size={12} />
+            Format: JPG, PNG, WebP. Maks 2MB per file.
+          </p>
+        </div>
 
-                <div className="text-xs text-gray-400">
-                  Rekomendasi: 800x800px
-                </div>
-              </div>
+        {/* Details Section */}
+        <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 space-y-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            Detail Produk
+          </h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">
+                Nama Barang
+              </label>
+              <Input
+                name="title"
+                value={formData.title}
+                onChange={handleChange}
+                placeholder="Contoh: MacBook Pro 2019"
+                className="bg-gray-50 border-transparent focus:bg-white focus:border-purple-500"
+              />
             </div>
 
-            <div className="rounded-lg border border-gray-100 p-3 bg-white">
-              <label className="block text-xs text-gray-500 mb-2">
-                Kategori *
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">
+                Harga (Rp)
+              </label>
+              <Input
+                name="price"
+                value={formatCurrency(formData.price)}
+                onChange={handlePriceChange}
+                placeholder="0"
+                className="bg-gray-50 border-transparent focus:bg-white focus:border-purple-500"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">
+                Kategori
               </label>
               <select
                 name="category_id"
                 value={formData.category_id}
                 onChange={handleChange}
-                className="w-full rounded-md border-gray-200 bg-white text-sm px-3 py-2 text-gray-700"
-                required
+                className="w-full rounded-md border-transparent bg-gray-50 px-3 py-2 text-sm focus:bg-white focus:ring-2 focus:ring-purple-500"
               >
                 <option value="">Pilih Kategori</option>
                 {categories.map((cat) => (
@@ -308,16 +319,15 @@ export const TambahBarangContent: React.FC = () => {
               </select>
             </div>
 
-            <div className="rounded-lg border border-gray-100 p-3 bg-white">
-              <label className="block text-xs text-gray-500 mb-2">
-                Kondisi Barang *
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">
+                Kondisi
               </label>
               <select
                 name="condition"
                 value={formData.condition}
                 onChange={handleChange}
-                className="w-full rounded-md border-gray-200 bg-white text-sm px-3 py-2 text-gray-700"
-                required
+                className="w-full rounded-md border-transparent bg-gray-50 px-3 py-2 text-sm focus:bg-white focus:ring-2 focus:ring-purple-500"
               >
                 <option value="baru">Baru</option>
                 <option value="seperti baru">Seperti Baru</option>
@@ -327,90 +337,44 @@ export const TambahBarangContent: React.FC = () => {
             </div>
           </div>
 
-          {/* Right: main fields */}
-          <div className="md:col-span-2 space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Nama Barang *
-              </label>
-              <Input
-                name="title"
-                value={formData.title}
-                onChange={handleChange}
-                placeholder="Contoh: MacBook Pro 2019"
-                className="bg-white border-gray-200 text-gray-800 placeholder-gray-400"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Harga *
-              </label>
-              <Input
-                name="price"
-                value={formatCurrency(formData.price)}
-                onChange={handlePriceChange}
-                placeholder="0"
-                className="bg-white border-gray-200 text-gray-800 placeholder-gray-400"
-                required
-              />
-              <p className="text-xs text-gray-400 mt-1">
-                Masukkan angka tanpa titik/koma.
-              </p>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Deskripsi & Detail *
-              </label>
-              <Textarea
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                placeholder="Tulis deskripsi singkat: kondisi, aksesoris, kelengkapan, dll."
-                className="bg-white border-gray-200 text-gray-800 placeholder-gray-400 min-h-[180px]"
-                required
-              />
-            </div>
-
-            <div className="flex items-center justify-between gap-3 pt-2">
-              <div className="text-sm text-gray-500">
-                Produk akan berstatus <strong>pending payment</strong> sampai
-                Anda membayar biaya listing.
-              </div>
-
-              <div className="flex items-center gap-3">
-                <Button
-                  variant="ghost"
-                  type="button"
-                  onClick={() => {
-                    setFormData({
-                      title: "",
-                      price: "",
-                      description: "",
-                      category_id: "",
-                      condition: "bekas baik",
-                    });
-                    images.forEach((p) => URL.revokeObjectURL(p.url));
-                    setImages([]);
-                  }}
-                  className="px-4 py-2 rounded-full text-gray-700 bg-gray-50 hover:bg-gray-100"
-                >
-                  Reset
-                </Button>
-
-                <Button
-                  type="submit"
-                  size="lg"
-                  className="px-6 py-2 rounded-full"
-                  disabled={loading}
-                >
-                  {loading ? "Menyimpan..." : "Tambah Barang"}
-                </Button>
-              </div>
-            </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700">
+              Deskripsi Lengkap
+            </label>
+            <Textarea
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              placeholder="Jelaskan kondisi barang, kelengkapan, minus, dll."
+              className="min-h-[150px] bg-gray-50 border-transparent focus:bg-white focus:border-purple-500"
+            />
           </div>
+        </div>
+
+        {/* Submit Action */}
+        <div className="flex items-center justify-end gap-4 pt-4">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => router.back()}
+            className="text-gray-500 hover:text-gray-700"
+          >
+            Batal
+          </Button>
+          <Button
+            type="submit"
+            disabled={loading}
+            className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-6 rounded-xl text-lg font-medium shadow-lg shadow-purple-500/30 transition-all hover:scale-[1.02] active:scale-[0.98]"
+          >
+            {loading ? (
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                Menyimpan...
+              </div>
+            ) : (
+              "Jual Barang Sekarang"
+            )}
+          </Button>
         </div>
       </form>
     </motion.div>

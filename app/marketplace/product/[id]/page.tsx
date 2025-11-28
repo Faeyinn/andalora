@@ -23,7 +23,7 @@ export default async function ProductDetailPage({ params }: ProductPageParams) {
     .select(
       `
       *,
-      user:users(id, full_name, whatsapp, university),
+      user:users(id, full_name, whatsapp, university, avatar_url),
       category:categories(id, name, slug)
     `
     )
@@ -41,7 +41,7 @@ export default async function ProductDetailPage({ params }: ProductPageParams) {
     .select(
       `
       *,
-      user:users(id, full_name, whatsapp),
+      user:users(id, full_name, whatsapp, avatar_url),
       category:categories(id, name, slug)
     `
     )
@@ -51,31 +51,47 @@ export default async function ProductDetailPage({ params }: ProductPageParams) {
     .limit(4);
 
   return (
-    <div className="flex min-h-screen flex-col bg-gray-50">
-      {/* Navbar */}
+    <div className="flex min-h-screen flex-col bg-gray-50 selection:bg-purple-500/30">
       <Navbar />
 
-      {/* Konten Utama */}
-      <main className="grow mt-20">
-        <div className="w-full px-4 py-8 sm:px-6 lg:px-8 lg:py-16">
-          {/* Bagian Detail Produk */}
-          <div className="flex w-full flex-col lg:flex-row">
-            <ProductImage
-              imageUrl={product.images?.[0]}
-              alt={product.title}
-              productId={product.id}
-            />
+      {/* Background Elements */}
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-500/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-500/5 rounded-full blur-3xl" />
+      </div>
+
+      {/* Main Content */}
+      <main className="relative z-10 grow pt-24 pb-16">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Breadcrumb (Optional but good for UX) */}
+          <div className="mb-8 flex items-center gap-2 text-sm text-gray-500">
+            <a href="/marketplace" className="hover:text-purple-600">
+              Marketplace
+            </a>
+            <span>/</span>
+            <span className="text-gray-900 font-medium truncate max-w-[200px]">
+              {product.title}
+            </span>
+          </div>
+
+          {/* Product Detail Section */}
+          <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 mb-20">
+            <ProductImage images={product.images} title={product.title} />
             <ProductInfo product={product as Product} />
           </div>
 
-          {/* Bagian Produk Terkait */}
+          {/* Related Products Section */}
           {related && related.length > 0 && (
-            <RelatedProducts products={related as Product[]} />
+            <div className="border-t border-gray-200 pt-16">
+              <h2 className="text-2xl font-bold text-gray-900 mb-8">
+                Produk Serupa
+              </h2>
+              <RelatedProducts products={related as Product[]} />
+            </div>
           )}
         </div>
       </main>
 
-      {/* Footer */}
       <Footer />
     </div>
   );

@@ -2,16 +2,19 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { Logo } from "@/components/shared/Logo";
 import { createClient } from "@/lib/supabase/client";
+import { LogOut, Menu, X } from "lucide-react";
+import Swal from "sweetalert2";
 
 export const Navbar = () => {
   const pathname = usePathname();
+  const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
@@ -55,6 +58,31 @@ export const Navbar = () => {
     }
   }, [user]);
 
+  const handleLogout = async () => {
+    const result = await Swal.fire({
+      title: "Logout",
+      text: "Apakah Anda yakin ingin keluar?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Ya, Logout",
+      cancelButtonText: "Batal",
+      confirmButtonColor: "#2D3250",
+      cancelButtonColor: "#6B7280",
+      reverseButtons: true,
+      customClass: {
+        popup: "rounded-2xl",
+        confirmButton: "rounded-xl",
+        cancelButton: "rounded-xl",
+      },
+    });
+
+    if (result.isConfirmed) {
+      await signOut();
+      setMobileOpen(false);
+      router.push("/");
+    }
+  };
+
   const menuItems = [
     { label: "Home", href: "/marketplace" },
     { label: "Bantuan", href: "/bantuan" },
@@ -66,6 +94,7 @@ export const Navbar = () => {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-purple-200/80 backdrop-blur-sm shadow-md antialiased font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
+          {/* Logo */}
           <div className="flex items-center h-full">
             <Logo />
           </div>
@@ -100,7 +129,7 @@ export const Navbar = () => {
                         stiffness: 400,
                         damping: 30,
                       }}
-                      className="absolute inset-0 rounded-full bg-linear-to-r from-purple-500 to-purple-600 shadow-md -z-10"
+                      className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-500 to-purple-600 shadow-md -z-10"
                     />
                   ) : (
                     <motion.span
@@ -117,58 +146,37 @@ export const Navbar = () => {
 
           {/* Mobile Toggle */}
           <button
-            className="md:hidden p-2"
+            className="md:hidden p-2 rounded-xl hover:bg-purple-300/20 transition-colors"
             onClick={() => setMobileOpen(!mobileOpen)}
           >
-            <svg
-              className="w-7 h-7"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              {mobileOpen ? (
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                  className="text-black"
-                />
-              ) : (
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                  className="text-black"
-                />
-              )}
-            </svg>
+            {mobileOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
+      </div>
 
-        {/* Mobile Menu */}
-        <AnimatePresence>
-          {mobileOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.25 }}
-              className="md:hidden bg-purple-100 rounded-xl p-4 mt-2 shadow-md"
-            >
+      {/* Mobile Menu */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="md:hidden overflow-hidden bg-purple-100 border-b border-purple-200 shadow-lg"
+          >
+            <div className="px-4 py-4 space-y-2">
               {menuItems.map((item, index) => {
                 const isActive = pathname === item.href;
                 return (
                   <Link
                     key={index}
                     href={item.href}
-                    className={`block px-4 py-2 rounded-lg font-semibold text-base mb-1 transition-all flex justify-between items-center ${
+                    onClick={() => setMobileOpen(false)}
+                    className={`flex items-center justify-between px-4 py-3 rounded-xl text-base font-medium transition-all ${
                       isActive
                         ? "bg-purple-500 text-white"
-                        : "text-gray-800 hover:bg-purple-300/40"
+                        : "text-gray-800 hover:bg-purple-200/50"
                     }`}
-                    onClick={() => setMobileOpen(false)}
                   >
                     <span>{item.label}</span>
                     {item.badge ? (
@@ -179,10 +187,23 @@ export const Navbar = () => {
                   </Link>
                 );
               })}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+
+              {/* Mobile Logout Button */}
+              {user && (
+                <div className="pt-2 mt-2 border-t border-purple-200">
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 transition-colors font-medium"
+                  >
+                    <LogOut size={20} />
+                    <span>Logout</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </nav>
   );
 };

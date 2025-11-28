@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { User, Heart, Package, PlusCircle } from "lucide-react";
 import { ProfileSidebar } from "@/components/profil/ProfileSidebar";
 import { AkunContent } from "@/components/profil/AkunContent";
 import { FavoritContent } from "@/components/profil/FavoritContent";
@@ -45,25 +47,51 @@ export default function ProfilClient() {
           </div>
         </div>
 
-        <div className="lg:hidden bg-white rounded-lg shadow-sm p-3 mb-4">
-          <h2 className="text-lg font-semibold mb-3">Halo Guest!</h2>
-          <div className="flex overflow-x-auto gap-2 pb-2">
-            {["favorit", "akun", "barang-saya", "tambah-barang"].map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
-                  activeTab === tab
-                    ? "bg-[#CBAF94] text-white"
-                    : "bg-gray-100 text-gray-800"
-                }`}
-              >
-                {tab === "favorit" && "Favorit"}
-                {tab === "akun" && "Akun"}
-                {tab === "barang-saya" && "Barang Saya"}
-                {tab === "tambah-barang" && "Tambah Barang"}
-              </button>
-            ))}
+        <div className="lg:hidden sticky top-[calc(var(--navbar-height)+1rem)] z-30 mb-6">
+          <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-sm border border-gray-100 p-2">
+            <div className="flex items-center justify-between relative">
+              {[
+                { id: "akun", label: "Akun", icon: User },
+                { id: "favorit", label: "Favorit", icon: Heart },
+                { id: "barang-saya", label: "Barang", icon: Package },
+                { id: "tambah-barang", label: "Jual", icon: PlusCircle },
+              ].map((tab) => {
+                const Icon = tab.icon;
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`relative flex-1 flex flex-col items-center gap-1 py-2 px-1 rounded-xl transition-colors ${
+                      isActive
+                        ? "text-purple-600"
+                        : "text-gray-500 hover:text-gray-900"
+                    }`}
+                  >
+                    {isActive && (
+                      <motion.div
+                        layoutId="activeTabMobile"
+                        className="absolute inset-0 bg-purple-50 rounded-xl"
+                        transition={{
+                          type: "spring",
+                          bounce: 0.2,
+                          duration: 0.6,
+                        }}
+                      />
+                    )}
+                    <span className="relative z-10">
+                      <Icon
+                        size={20}
+                        className={isActive ? "fill-current" : ""}
+                      />
+                    </span>
+                    <span className="relative z-10 text-[10px] font-medium">
+                      {tab.label}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
 

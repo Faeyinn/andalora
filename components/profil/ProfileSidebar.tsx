@@ -5,6 +5,14 @@ import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
+import {
+  User,
+  Heart,
+  Package,
+  PlusCircle,
+  LogOut,
+  ChevronRight,
+} from "lucide-react";
 
 interface ProfileSidebarProps {
   activeTab: string;
@@ -19,10 +27,10 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
   const router = useRouter();
 
   const tabs = [
-    { id: "akun", label: "Akun" },
-    { id: "favorit", label: "Favorit" },
-    { id: "barang-saya", label: "Barang Saya" },
-    { id: "tambah-barang", label: "Tambah Barang" },
+    { id: "akun", label: "Akun Saya", icon: User },
+    { id: "favorit", label: "Favorit", icon: Heart },
+    { id: "barang-saya", label: "Barang Saya", icon: Package },
+    { id: "tambah-barang", label: "Jual Barang", icon: PlusCircle },
   ];
 
   const handleLogout = async () => {
@@ -35,54 +43,77 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
       cancelButtonText: "Batal",
       confirmButtonColor: "#2D3250",
       cancelButtonColor: "#6B7280",
+      reverseButtons: true,
     });
 
     if (result.isConfirmed) {
       await signOut();
-
-      Swal.fire({
-        title: "Berhasil!",
-        text: "Anda telah logout",
-        icon: "success",
-        timer: 1500,
-        showConfirmButton: false,
-      });
-
-      setTimeout(() => {
-        router.push("/");
-      }, 1500);
+      router.push("/");
     }
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-4 h-full max-h-[50vh] overflow-y-auto">
-      <h2 className="text-2xl text-gray-800 font-bold mb-6">
-        Halo {user?.full_name || "Guest"}!
-      </h2>
-      <div className="space-y-2">
-        {tabs.map((tab) => (
-          <motion.button
-            key={tab.id}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => onTabChange(tab.id)}
-            className={`w-full text-left px-4 py-3 rounded-full font-medium transition-colors ${
-              activeTab === tab.id
-                ? "bg-[#CBAF94] text-white"
-                : "bg-gray-100 text-gray-800 hover:bg-gray-200"
-            }`}
-          >
-            {tab.label}
-          </motion.button>
-        ))}
+    <div className="h-full">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden sticky top-24">
+        {/* User Mini Profile */}
+        <div className="p-6 bg-gradient-to-br from-[#2D3250] to-[#424769] text-white">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-xl font-bold border border-white/30">
+              {user?.full_name?.charAt(0) || "G"}
+            </div>
+            <div className="overflow-hidden">
+              <h2 className="font-bold text-lg truncate">
+                {user?.full_name || "Guest"}
+              </h2>
+              <p className="text-xs text-gray-300 truncate">{user?.email}</p>
+            </div>
+          </div>
+        </div>
 
-        {/* Logout Button */}
-        <motion.button
-          whileTap={{ scale: 0.98 }}
-          onClick={handleLogout}
-          className="w-full text-left px-4 py-3 rounded-full font-medium transition-colors bg-red-100 text-red-600 hover:bg-red-200 mt-4"
-        >
-          Logout
-        </motion.button>
+        {/* Navigation */}
+        <div className="p-4 space-y-2">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+
+            return (
+              <button
+                key={tab.id}
+                onClick={() => onTabChange(tab.id)}
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 group ${
+                  isActive
+                    ? "bg-purple-50 text-purple-700 shadow-sm"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <Icon
+                    size={20}
+                    className={`transition-colors ${
+                      isActive
+                        ? "text-purple-600"
+                        : "text-gray-400 group-hover:text-gray-600"
+                    }`}
+                  />
+                  <span className="font-medium">{tab.label}</span>
+                </div>
+                {isActive && (
+                  <ChevronRight size={16} className="text-purple-600" />
+                )}
+              </button>
+            );
+          })}
+
+          <div className="pt-4 mt-4 border-t border-gray-100">
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 transition-colors font-medium"
+            >
+              <LogOut size={20} />
+              <span>Logout</span>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
