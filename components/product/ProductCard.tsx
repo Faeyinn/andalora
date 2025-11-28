@@ -6,20 +6,45 @@ import { motion } from "framer-motion";
 import { Product } from "@/types";
 import { Heart } from "lucide-react";
 import { useFavorites } from "@/hooks/useFavorites";
+import { useAuth } from "@/contexts/AuthContext";
 import Swal from "sweetalert2";
 
 type ProductCardProps = {
   product: Product;
   index?: number;
+  showStatus?: boolean;
 };
 
-export default function ProductCard({ product, index = 0 }: ProductCardProps) {
+export default function ProductCard({
+  product,
+  index = 0,
+  showStatus = false,
+}: ProductCardProps) {
   const { isFavorite, addFavorite, removeFavorite } = useFavorites();
+  const { user } = useAuth();
   const isLiked = isFavorite(product.id);
+  const isOwner = user?.id === product.user_id;
 
   const handleToggleFavorite = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+
+    if (!user) {
+      Swal.fire({
+        icon: "info",
+        title: "Login Diperlukan",
+        text: "Anda harus login untuk menambahkan ke favorit.",
+        confirmButtonText: "Login",
+        confirmButtonColor: "#2D3250",
+        showCancelButton: true,
+        cancelButtonText: "Batal",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.href = "/login";
+        }
+      });
+      return;
+    }
 
     if (isLiked) {
       const result = await removeFavorite(product.id);
@@ -56,6 +81,28 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
     }
   };
 
+  const getStatusBadge = () => {
+    if (!showStatus) return null;
+
+    const statusConfig = {
+      active: { label: "Aktif", color: "bg-green-500" },
+      pending_payment: { label: "Menunggu Pembayaran", color: "bg-orange-500" },
+      sold: { label: "Terjual", color: "bg-gray-500" },
+    };
+
+    const config =
+      statusConfig[product.status as keyof typeof statusConfig] ||
+      statusConfig.active;
+
+    return (
+      <span
+        className={`px-3 py-1 text-xs font-medium text-white ${config.color} backdrop-blur-md rounded-full border border-white/10 shadow-sm`}
+      >
+        {config.label}
+      </span>
+    );
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -65,7 +112,11 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
       className="group relative overflow-hidden rounded-2xl bg-white/80 backdrop-blur-sm border border-white/20 shadow-lg transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/10"
     >
       <Link
-        href={`/marketplace/product/${product.id}`}
+        href={
+          isOwner
+            ? `/marketplace/manage-product/${product.id}`
+            : `/marketplace/product/${product.id}`
+        }
         className="block h-full flex flex-col"
       >
         {/* Image Container */}
@@ -99,8 +150,9 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
             </button>
           </div>
 
-          {/* Badge Condition */}
-          <div className="absolute top-3 left-3">
+          {/* Badges */}
+          <div className="absolute top-3 left-3 flex flex-col gap-2 items-start">
+            {getStatusBadge()}
             <span className="px-3 py-1 text-xs font-medium text-white bg-black/50 backdrop-blur-md rounded-full border border-white/10">
               {product.condition}
             </span>

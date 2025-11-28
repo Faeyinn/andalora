@@ -2,7 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import { User } from "@/types";
-import { Search } from "lucide-react";
+import { Search, Trash2, Edit, Shield } from "lucide-react";
+import Swal from "sweetalert2";
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([]);
@@ -40,6 +41,76 @@ export default function AdminUsersPage() {
     e.preventDefault();
     setPage(1);
     fetchUsers();
+  };
+
+  const handleDeleteUser = async (userId: string, userName: string) => {
+    const result = await Swal.fire({
+      title: "Hapus User?",
+      text: `Apakah Anda yakin ingin menghapus user "${userName}"? Tindakan ini tidak dapat dibatalkan.`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#EF4444",
+      cancelButtonColor: "#6B7280",
+      confirmButtonText: "Ya, Hapus",
+      cancelButtonText: "Batal",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const response = await fetch(`/api/admin/users?id=${userId}`, {
+          method: "DELETE",
+        });
+        const data = await response.json();
+
+        if (data.success) {
+          Swal.fire("Terhapus!", "User berhasil dihapus.", "success");
+          fetchUsers();
+        } else {
+          Swal.fire("Gagal!", data.error || "Gagal menghapus user.", "error");
+        }
+      } catch (error) {
+        console.error("Delete error:", error);
+        Swal.fire("Error!", "Terjadi kesalahan sistem.", "error");
+      }
+    }
+  };
+
+  const handleUpdateRole = async (userId: string, currentRole: string) => {
+    const { value: role } = await Swal.fire({
+      title: "Ubah Role User",
+      input: "select",
+      inputOptions: {
+        user: "User",
+        admin: "Admin",
+      },
+      inputValue: currentRole,
+      showCancelButton: true,
+      confirmButtonColor: "#2D3250",
+      cancelButtonColor: "#6B7280",
+      confirmButtonText: "Simpan",
+      cancelButtonText: "Batal",
+    });
+
+    if (role && role !== currentRole) {
+      try {
+        const response = await fetch("/api/admin/users", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: userId, role }),
+        });
+        const data = await response.json();
+
+        if (data.success) {
+          Swal.fire("Berhasil!", "Role user berhasil diperbarui.", "success");
+          fetchUsers();
+        } else {
+          Swal.fire("Gagal!", data.error || "Gagal memperbarui role.", "error");
+        }
+      } catch (error) {
+        console.error("Update role error:", error);
+        Swal.fire("Error!", "Terjadi kesalahan sistem.", "error");
+      }
+    }
   };
 
   return (
@@ -87,13 +158,16 @@ export default function AdminUsersPage() {
                 <th className="px-6 py-4 font-semibold text-gray-700">
                   Joined
                 </th>
+                <th className="px-6 py-4 font-semibold text-gray-700 text-right">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
               {loading ? (
                 <tr>
                   <td
-                    colSpan={5}
+                    colSpan={6}
                     className="px-6 py-8 text-center text-gray-500"
                   >
                     Loading users...
@@ -102,7 +176,7 @@ export default function AdminUsersPage() {
               ) : users.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={5}
+                    colSpan={6}
                     className="px-6 py-8 text-center text-gray-500"
                   >
                     No users found
@@ -160,6 +234,26 @@ export default function AdminUsersPage() {
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500">
                       {new Date(user.created_at).toLocaleDateString("id-ID")}
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => handleUpdateRole(user.id, user.role)}
+                          className="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                          title="Edit Role"
+                        >
+                          <Shield size={18} />
+                        </button>
+                        <button
+                          onClick={() =>
+                            handleDeleteUser(user.id, user.full_name)
+                          }
+                          className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          title="Hapus User"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))

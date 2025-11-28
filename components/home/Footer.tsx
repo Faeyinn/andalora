@@ -8,19 +8,19 @@ interface Member {
 }
 
 // Dummy Data
-const websiteUrl = "www.andalora.com";
+const websiteUrl = "andalora.vercel.app";
 const description =
-  "Dibuat sebagai tugas mata kuliah Organisasi Komputer II pada semester 5, Jurusan Teknik Komputer, Fakultas Teknologi Informasi, Universitas Andalas.";
+  "Dibuat sebagai tugas mata kuliah Rekayasa Perangkat Lunak pada semester 5, Jurusan Teknik Komputer, Fakultas Teknologi Informasi, Universitas Andalas.";
 const year = "2025";
 const groupNumber = "Kelompok 5";
 
 const members: Member[] = [
+  { name: "Muhammad Rayhan Ramadhan", nim: "2211513052" },
+  { name: "Athallah Fajri", nim: "2311511008" },
   { name: "Shaza Zulfiani", nim: "2311511018" },
+  { name: "Asyratul Mufidah Andini", nim: "2311512010" },
   { name: "Rahmat Fajar Saputra", nim: "2311512036" },
   { name: "Aditya Khiswanda", nim: "2311513012" },
-  { name: "Asyiatul Mufidah Andini", nim: "2311512010" },
-  { name: "Athallah Fajri", nim: "2311511008" },
-  { name: "Muhammad Reyhan Ramadhan", nim: "2211513052" },
 ];
 
 // Footer Component
@@ -95,7 +95,9 @@ export function Footer() {
                     {members.map((member, index) => (
                       <div key={index} className="text-sm">
                         <div className="flex items-center gap-2">
-                          <span className="text-gray-900 font-medium">{member.name}</span>
+                          <span className="text-gray-900 font-medium">
+                            {member.name}
+                          </span>
                           <span className="text-gray-500">{member.nim}</span>
                         </div>
                       </div>

@@ -34,11 +34,6 @@ export default function NotificationsPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.push("/login");
-      return;
-    }
-
     if (user) {
       fetchNotifications();
 
@@ -76,6 +71,42 @@ export default function NotificationsPage() {
       };
     }
   }, [user, loading, router]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2D3250]"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col selection:bg-purple-500/30">
+        <Navbar />
+        <main className="flex-grow container mx-auto px-4 py-20 mt-20">
+          <div className="max-w-md mx-auto text-center bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
+            <div className="w-20 h-20 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Bell className="w-10 h-10 text-purple-600" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              Login Diperlukan
+            </h2>
+            <p className="text-gray-500 mb-8">
+              Silahkan login terlebih dahulu untuk melihat notifikasi Anda.
+            </p>
+            <button
+              onClick={() => router.push("/login")}
+              className="inline-flex items-center gap-2 px-8 py-3 bg-[#2D3250] text-white rounded-xl hover:bg-[#1f2337] transition-colors font-medium shadow-lg shadow-gray-200"
+            >
+              Login Sekarang
+            </button>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   const fetchNotifications = async () => {
     try {

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import ProductCard from "@/components/product/ProductCard";
 import { useMyProducts } from "@/hooks/useProducts";
@@ -93,17 +94,25 @@ export const BarangSayaContent: React.FC = () => {
                 }".`}
           </p>
           {activeStatus === "all" && (
-            <button className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors font-medium shadow-lg shadow-purple-500/30">
+            <Link
+              href="/profil?tab=tambah-barang"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors font-medium shadow-lg shadow-purple-500/30"
+            >
               <Plus size={20} />
               Jual Barang Sekarang
-            </button>
+            </Link>
           )}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <AnimatePresence mode="popLayout">
             {filteredProducts.map((product, index) => (
-              <ProductCard key={product.id} product={product} index={index} />
+              <ProductCard
+                key={product.id}
+                product={product}
+                index={index}
+                showStatus={true}
+              />
             ))}
           </AnimatePresence>
         </div>

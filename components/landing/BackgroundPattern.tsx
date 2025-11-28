@@ -1,58 +1,16 @@
 "use client";
 
 import React from "react";
-import { motion } from "framer-motion";
 
 export const BackgroundPattern = () => {
   return (
     <div className="fixed inset-0 overflow-hidden -z-10 bg-gray-50">
       {/* Animated Gradient Orbs */}
-      <motion.div
-        animate={{
-          scale: [1, 1.2, 1],
-          rotate: [0, 90, 0],
-          x: [0, 50, 0],
-          y: [0, 30, 0],
-        }}
-        transition={{
-          duration: 20,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-        className="absolute -top-[20%] -left-[10%] w-[70vw] h-[70vw] bg-purple-300/30 rounded-full blur-[100px]"
-      />
+      <div className="absolute -top-[20%] -left-[10%] w-[70vw] h-[70vw] bg-purple-300/30 rounded-full blur-[100px] animate-blob" />
 
-      <motion.div
-        animate={{
-          scale: [1, 1.1, 1],
-          rotate: [0, -60, 0],
-          x: [0, -30, 0],
-          y: [0, 50, 0],
-        }}
-        transition={{
-          duration: 15,
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: 2,
-        }}
-        className="absolute top-[20%] -right-[10%] w-[60vw] h-[60vw] bg-blue-300/30 rounded-full blur-[100px]"
-      />
+      <div className="absolute top-[20%] -right-[10%] w-[60vw] h-[60vw] bg-blue-300/30 rounded-full blur-[100px] animate-blob animation-delay-2000" />
 
-      <motion.div
-        animate={{
-          scale: [1, 1.3, 1],
-          rotate: [0, 45, 0],
-          x: [0, 40, 0],
-          y: [0, -40, 0],
-        }}
-        transition={{
-          duration: 18,
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: 5,
-        }}
-        className="absolute -bottom-[20%] left-[20%] w-[60vw] h-[60vw] bg-green-300/30 rounded-full blur-[100px]"
-      />
+      <div className="absolute -bottom-[20%] left-[20%] w-[60vw] h-[60vw] bg-green-300/30 rounded-full blur-[100px] animate-blob animation-delay-4000" />
 
       {/* Grid Pattern Overlay */}
       <div

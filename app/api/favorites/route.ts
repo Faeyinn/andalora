@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 
 // GET /api/favorites - Get user's favorites (support guest and authenticated)
@@ -8,13 +9,15 @@ export async function GET(request: Request) {
     const sessionId = searchParams.get("session_id"); // for guest
 
     const supabase = await createClient();
+    // Use admin client for fetching data to bypass RLS
+    const adminSupabase = createAdminClient();
 
     // Try to get authenticated user
     const {
       data: { user },
     } = await supabase.auth.getUser();
 
-    let query = supabase
+    let query = adminSupabase
       .from("favorites")
       .select(
         `

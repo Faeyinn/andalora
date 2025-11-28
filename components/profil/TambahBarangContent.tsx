@@ -282,6 +282,7 @@ export const TambahBarangContent: React.FC = () => {
                 name="title"
                 value={formData.title}
                 onChange={handleChange}
+                suppressHydrationWarning
                 placeholder="Contoh: MacBook Pro 2019"
                 className="bg-gray-50 border-transparent focus:bg-white focus:border-purple-500"
               />
@@ -295,6 +296,7 @@ export const TambahBarangContent: React.FC = () => {
                 name="price"
                 value={formatCurrency(formData.price)}
                 onChange={handlePriceChange}
+                suppressHydrationWarning
                 placeholder="0"
                 className="bg-gray-50 border-transparent focus:bg-white focus:border-purple-500"
               />
@@ -308,6 +310,7 @@ export const TambahBarangContent: React.FC = () => {
                 name="category_id"
                 value={formData.category_id}
                 onChange={handleChange}
+                suppressHydrationWarning
                 className="w-full rounded-md border-transparent bg-gray-50 px-3 py-2 text-sm focus:bg-white focus:ring-2 focus:ring-purple-500"
               >
                 <option value="">Pilih Kategori</option>
@@ -327,6 +330,7 @@ export const TambahBarangContent: React.FC = () => {
                 name="condition"
                 value={formData.condition}
                 onChange={handleChange}
+                suppressHydrationWarning
                 className="w-full rounded-md border-transparent bg-gray-50 px-3 py-2 text-sm focus:bg-white focus:ring-2 focus:ring-purple-500"
               >
                 <option value="baru">Baru</option>
@@ -345,6 +349,7 @@ export const TambahBarangContent: React.FC = () => {
               name="description"
               value={formData.description}
               onChange={handleChange}
+              suppressHydrationWarning
               placeholder="Jelaskan kondisi barang, kelengkapan, minus, dll."
               className="min-h-[150px] bg-gray-50 border-transparent focus:bg-white focus:border-purple-500"
             />
@@ -357,6 +362,7 @@ export const TambahBarangContent: React.FC = () => {
             type="button"
             variant="ghost"
             onClick={() => router.back()}
+            suppressHydrationWarning
             className="text-gray-500 hover:text-gray-700"
           >
             Batal
@@ -364,6 +370,7 @@ export const TambahBarangContent: React.FC = () => {
           <Button
             type="submit"
             disabled={loading}
+            suppressHydrationWarning
             className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-6 rounded-xl text-lg font-medium shadow-lg shadow-purple-500/30 transition-all hover:scale-[1.02] active:scale-[0.98]"
           >
             {loading ? (

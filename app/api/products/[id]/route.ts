@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 import type { UpdateProductRequest } from "@/types";
 
@@ -9,14 +10,15 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const supabase = await createClient();
+    // Use admin client to bypass RLS for public product details
+    const supabase = createAdminClient();
 
     const { data, error } = await supabase
       .from("products")
       .select(
         `
         *,
-        user:users(id, full_name, whatsapp, university, campus),
+        user:users(id, full_name, whatsapp, university),
         category:categories(id, name, slug),
         listing_plan:listing_plans(id, name, duration_days, price)
       `
@@ -141,6 +143,16 @@ export async function PUT(
       }
       updateData.images = body.images;
     }
+    if (body.status !== undefined) {
+      const validStatuses = ["active", "sold", "pending_payment"];
+      if (!validStatuses.includes(body.status)) {
+        return NextResponse.json(
+          { success: false, error: "Status tidak valid" },
+          { status: 400 }
+        );
+      }
+      updateData.status = body.status;
+    }
 
     // Update product
     const { data, error } = await supabase
@@ -229,6 +241,17 @@ export async function DELETE(
 
     if (error) {
       console.error("Error deleting product:", error);
+      // Check for foreign key constraint violation (Postgres code 23503)
+      if (error.code === "23503") {
+        return NextResponse.json(
+          {
+            success: false,
+            error:
+              "Produk tidak dapat dihapus karena memiliki riwayat transaksi atau data terkait lainnya. Silahkan arsipkan produk atau hubungi admin.",
+          },
+          { status: 400 }
+        );
+      }
       return NextResponse.json(
         { success: false, error: "Gagal menghapus produk" },
         { status: 500 }

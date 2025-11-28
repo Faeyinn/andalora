@@ -1,9 +1,11 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Product } from "@/types";
-import { Search, Filter } from "lucide-react";
+import { Search, Filter, Trash2, Eye, EyeOff } from "lucide-react";
+import Swal from "sweetalert2";
 import { createClient } from "@/lib/supabase/client";
+import Image from "next/image";
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -13,7 +15,7 @@ export default function AdminProductsPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams({
@@ -33,7 +35,7 @@ export default function AdminProductsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, search, statusFilter]);
 
   useEffect(() => {
     fetchProducts();
@@ -54,12 +56,95 @@ export default function AdminProductsPage() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [page, search, statusFilter]);
+  }, [fetchProducts]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setPage(1);
     fetchProducts();
+  };
+
+  const handleDeleteProduct = async (
+    productId: string,
+    productTitle: string
+  ) => {
+    const result = await Swal.fire({
+      title: "Hapus Produk?",
+      text: `Apakah Anda yakin ingin menghapus produk "${productTitle}"? Tindakan ini tidak dapat dibatalkan.`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#EF4444",
+      cancelButtonColor: "#6B7280",
+      confirmButtonText: "Ya, Hapus",
+      cancelButtonText: "Batal",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const response = await fetch(`/api/admin/products?id=${productId}`, {
+          method: "DELETE",
+        });
+        const data = await response.json();
+
+        if (data.success) {
+          Swal.fire("Terhapus!", "Produk berhasil dihapus.", "success");
+          fetchProducts();
+        } else {
+          Swal.fire("Gagal!", data.error || "Gagal menghapus produk.", "error");
+        }
+      } catch (error) {
+        console.error("Delete error:", error);
+        Swal.fire("Error!", "Terjadi kesalahan sistem.", "error");
+      }
+    }
+  };
+
+  const handleToggleStatus = async (
+    productId: string,
+    currentStatus: string
+  ) => {
+    const newStatus = currentStatus === "active" ? "archived" : "active";
+    const actionText = newStatus === "active" ? "Tampilkan" : "Sembunyikan";
+
+    const result = await Swal.fire({
+      title: `${actionText} Produk?`,
+      text: `Produk akan ${
+        newStatus === "active" ? "ditampilkan kembali" : "disembunyikan"
+      } di marketplace.`,
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonColor: "#2D3250",
+      cancelButtonColor: "#6B7280",
+      confirmButtonText: `Ya, ${actionText}`,
+      cancelButtonText: "Batal",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const response = await fetch("/api/admin/products", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: productId, status: newStatus }),
+        });
+        const data = await response.json();
+
+        if (data.success) {
+          Swal.fire(
+            "Berhasil!",
+            `Produk berhasil ${
+              newStatus === "active" ? "ditampilkan" : "disembunyikan"
+            }.`,
+            "success"
+          );
+          fetchProducts();
+        } else {
+          Swal.fire("Gagal!", data.error || "Gagal mengubah status.", "error");
+        }
+      } catch (error) {
+        console.error("Update status error:", error);
+        Swal.fire("Error!", "Terjadi kesalahan sistem.", "error");
+      }
+    }
   };
 
   const getStatusBadge = (status: string) => {
@@ -68,6 +153,7 @@ export default function AdminProductsPage() {
       pending_payment: "bg-yellow-100 text-yellow-700",
       sold: "bg-blue-100 text-blue-700",
       expired: "bg-red-100 text-red-700",
+      archived: "bg-gray-100 text-gray-700",
     };
     return (
       <span
@@ -114,6 +200,7 @@ export default function AdminProductsPage() {
             <option value="pending_payment">Pending Payment</option>
             <option value="sold">Sold</option>
             <option value="expired">Expired</option>
+            <option value="archived">Archived</option>
           </select>
         </div>
       </div>
@@ -135,13 +222,16 @@ export default function AdminProductsPage() {
                   Status
                 </th>
                 <th className="px-6 py-4 font-semibold text-gray-700">Date</th>
+                <th className="px-6 py-4 font-semibold text-gray-700 text-right">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
               {loading ? (
                 <tr>
                   <td
-                    colSpan={5}
+                    colSpan={6}
                     className="px-6 py-8 text-center text-gray-500"
                   >
                     Loading products...
@@ -150,7 +240,7 @@ export default function AdminProductsPage() {
               ) : products.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={5}
+                    colSpan={6}
                     className="px-6 py-8 text-center text-gray-500"
                   >
                     No products found
@@ -164,12 +254,14 @@ export default function AdminProductsPage() {
                   >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-lg bg-gray-200 overflow-hidden flex-shrink-0">
+                        <div className="w-12 h-12 rounded-lg bg-gray-200 overflow-hidden flex-shrink-0 relative">
                           {product.images?.[0] && (
-                            <img
+                            <Image
                               src={product.images[0]}
                               alt={product.title}
-                              className="w-full h-full object-cover"
+                              fill
+                              className="object-cover"
+                              sizes="48px"
                             />
                           )}
                         </div>
@@ -199,6 +291,40 @@ export default function AdminProductsPage() {
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500">
                       {new Date(product.created_at).toLocaleDateString("id-ID")}
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() =>
+                            handleToggleStatus(product.id, product.status)
+                          }
+                          className={`p-2 rounded-lg transition-colors ${
+                            product.status === "active"
+                              ? "text-gray-400 hover:text-orange-600 hover:bg-orange-50"
+                              : "text-gray-400 hover:text-green-600 hover:bg-green-50"
+                          }`}
+                          title={
+                            product.status === "active"
+                              ? "Sembunyikan"
+                              : "Tampilkan"
+                          }
+                        >
+                          {product.status === "active" ? (
+                            <EyeOff size={18} />
+                          ) : (
+                            <Eye size={18} />
+                          )}
+                        </button>
+                        <button
+                          onClick={() =>
+                            handleDeleteProduct(product.id, product.title)
+                          }
+                          className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          title="Hapus Produk"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))

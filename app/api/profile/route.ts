@@ -71,7 +71,6 @@ export async function PUT(request: Request) {
     if (body.phone !== undefined) updateData.phone = body.phone;
     if (body.whatsapp !== undefined) updateData.whatsapp = body.whatsapp;
     if (body.university !== undefined) updateData.university = body.university;
-    if (body.campus !== undefined) updateData.campus = body.campus;
     if (body.avatar_url !== undefined) updateData.avatar_url = body.avatar_url;
 
     const { data, error } = await supabase

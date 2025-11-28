@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
-import type { ProductsQuery, CreateProductRequest } from "@/types";
+import type { CreateProductRequest } from "@/types";
 
 // GET /api/products - List all active products (public)
 export async function GET(request: Request) {
@@ -21,7 +22,8 @@ export async function GET(request: Request) {
       : undefined;
     const sort = searchParams.get("sort") || "newest";
 
-    const supabase = await createClient();
+    // Use admin client to bypass RLS for public product listing to ensure user data is visible
+    const supabase = createAdminClient();
 
     // Build query
     // Check if category is UUID

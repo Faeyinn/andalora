@@ -14,15 +14,27 @@ export default function Footer() {
   const footerLinks = [
     {
       topic: "Marketplace",
-      pages: ["Jual Barang", "Kategori", "Promo"],
+      pages: [
+        { label: "Jual Barang", href: "/profil?tab=tambah-barang" },
+        { label: "Kategori", href: "/marketplace" },
+        { label: "Promo", href: "/promo" },
+      ],
     },
     {
       topic: "Bantuan",
-      pages: ["FAQ", "Panduan Penjual", "Kontak"],
+      pages: [
+        { label: "FAQ", href: "/bantuan/faq" },
+        { label: "Panduan Penjual", href: "/bantuan/panduan-penjual" },
+        { label: "Kontak", href: "/bantuan/kontak" },
+      ],
     },
     {
       topic: "Perusahaan",
-      pages: ["Tentang Kami", "Karir", "Kebijakan"],
+      pages: [
+        { label: "Tentang Kami", href: "/tentang-kami" },
+        { label: "Karir", href: "/karir" },
+        { label: "Kebijakan", href: "/kebijakan" },
+      ],
     },
   ];
 
@@ -76,10 +88,10 @@ export default function Footer() {
                   {section.pages.map((page, i) => (
                     <li key={i}>
                       <Link
-                        href="#"
+                        href={page.href}
                         className="text-sm text-gray-600 hover:text-gray-800 transition"
                       >
-                        {page}
+                        {page.label}
                       </Link>
                     </li>
                   ))}
@@ -95,16 +107,13 @@ export default function Footer() {
           </div>
           <div className="flex items-center gap-4 text-sm text-gray-500">
             <Link
-              href="#"
+              href="/syarat-ketentuan"
               className="hover:text-gray-800 transition"
             >
               Syarat & Ketentuan
             </Link>
             <span className="hidden sm:inline">•</span>
-            <Link
-              href="#"
-              className="hover:text-gray-800 transition"
-            >
+            <Link href="/privasi" className="hover:text-gray-800 transition">
               Privasi
             </Link>
           </div>

@@ -9,8 +9,33 @@ import { FavoritContent } from "@/components/profil/FavoritContent";
 import { BarangSayaContent } from "@/components/profil/BarangSayaContent";
 import { TambahBarangContent } from "@/components/profil/TambahBarangContent";
 
+import Link from "next/link";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
+import { LogIn } from "lucide-react";
+
 export default function ProfilClient() {
-  const [activeTab, setActiveTab] = useState("akun");
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const { user, loading } = useAuth();
+  const initialTab = searchParams.get("tab") || "akun";
+  const [activeTab, setActiveTab] = useState(initialTab);
+
+  // Sync state when URL params change
+  React.useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
+
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId);
+    // Optional: Update URL without full reload
+    const newUrl = new URL(window.location.href);
+    newUrl.searchParams.set("tab", tabId);
+    window.history.pushState({}, "", newUrl.toString());
+  };
 
   const renderContent = () => {
     switch (activeTab) {
@@ -26,6 +51,40 @@ export default function ProfilClient() {
         return <AkunContent />;
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2D3250]"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <main className="mt-15 w-full px-4 sm:px-6 lg:px-12 py-12">
+        <div className="max-w-md mx-auto text-center bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
+          <div className="w-20 h-20 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-6">
+            <User className="w-10 h-10 text-purple-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+            Login Diperlukan
+          </h2>
+          <p className="text-gray-500 mb-8">
+            Silahkan login terlebih dahulu untuk mengakses fitur profil,
+            favorit, dan jual barang.
+          </p>
+          <Link
+            href="/login"
+            className="inline-flex items-center gap-2 px-8 py-3 bg-[#2D3250] text-white rounded-xl hover:bg-[#1f2337] transition-colors font-medium shadow-lg shadow-gray-200"
+          >
+            <LogIn size={20} />
+            Login Sekarang
+          </Link>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="mt-15 w-full px-4 sm:px-6 lg:px-12 py-6">
@@ -43,7 +102,10 @@ export default function ProfilClient() {
               } as React.CSSProperties
             }
           >
-            <ProfileSidebar activeTab={activeTab} onTabChange={setActiveTab} />
+            <ProfileSidebar
+              activeTab={activeTab}
+              onTabChange={handleTabChange}
+            />
           </div>
         </div>
 
@@ -61,7 +123,7 @@ export default function ProfilClient() {
                 return (
                   <button
                     key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
+                    onClick={() => handleTabChange(tab.id)}
                     className={`relative flex-1 flex flex-col items-center gap-1 py-2 px-1 rounded-xl transition-colors ${
                       isActive
                         ? "text-purple-600"

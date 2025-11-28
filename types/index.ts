@@ -33,7 +33,12 @@ export type ListingPlan = {
   created_at: string;
 };
 
-export type ProductStatus = "pending_payment" | "active" | "expired" | "sold";
+export type ProductStatus =
+  | "pending_payment"
+  | "active"
+  | "expired"
+  | "sold"
+  | "archived";
 export type ProductCondition = "baru" | "seperti baru" | "bekas baik" | "bekas";
 
 export type Product = {
@@ -143,7 +148,9 @@ export type CreateProductRequest = {
   images: string[];
 };
 
-export type UpdateProductRequest = Partial<CreateProductRequest>;
+export type UpdateProductRequest = Partial<CreateProductRequest> & {
+  status?: ProductStatus;
+};
 
 export type CreatePaymentRequest = {
   product_id: string;

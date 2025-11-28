@@ -1,10 +1,11 @@
 import { Navbar } from "@/components/shared/Navbar";
 import ProductImage from "@/components/product/ProductImage";
 import ProductInfo from "@/components/product/ProductInfo";
-import RelatedProducts from "@/components/product/RelatedProducts";
+import OwnerControls from "@/components/product/OwnerControls";
 import Footer from "@/components/shared/Footer";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 import { Product } from "@/types";
 
 type ProductPageParams = {
@@ -13,13 +14,22 @@ type ProductPageParams = {
   }>;
 };
 
-export default async function ProductDetailPage({ params }: ProductPageParams) {
+export default async function ManageProductPage({ params }: ProductPageParams) {
   const { id } = await params;
-  // Use admin client to bypass RLS for public product details
-  const supabase = createAdminClient();
+  const adminSupabase = createAdminClient();
+  const supabase = await createClient();
+
+  // Check authentication
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
 
   // Fetch product details
-  const { data: product, error } = await supabase
+  const { data: product, error } = await adminSupabase
     .from("products")
     .select(
       `
@@ -36,20 +46,10 @@ export default async function ProductDetailPage({ params }: ProductPageParams) {
     notFound();
   }
 
-  // Fetch related products (same category, exclude current)
-  const { data: related } = await supabase
-    .from("products")
-    .select(
-      `
-      *,
-      user:users(id, full_name, whatsapp, avatar_url),
-      category:categories(id, name, slug)
-    `
-    )
-    .eq("category_id", product.category_id)
-    .neq("id", id)
-    .eq("status", "active")
-    .limit(4);
+  // Verify ownership
+  if (product.user_id !== user.id) {
+    redirect(`/marketplace/product/${id}`);
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-gray-50 selection:bg-purple-500/30">
@@ -64,34 +64,31 @@ export default async function ProductDetailPage({ params }: ProductPageParams) {
       {/* Main Content */}
       <main className="relative z-10 grow pt-24 pb-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Breadcrumb (Optional but good for UX) */}
+          {/* Breadcrumb */}
           <div className="mb-8 flex items-center gap-2 text-sm text-gray-500">
-            <a href="/marketplace" className="hover:text-purple-600">
-              Marketplace
+            <a href="/profil/barang-saya" className="hover:text-purple-600">
+              Barang Saya
             </a>
             <span>/</span>
             <span className="text-gray-900 font-medium truncate max-w-[200px]">
-              {product.title}
+              Kelola: {product.title}
             </span>
           </div>
 
           {/* Product Detail Section */}
           <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 mb-20">
             <ProductImage images={product.images} title={product.title} />
-            <div className="w-full lg:w-2/5 lg:pl-12">
-              <ProductInfo product={product as Product} />
+
+            <div className="w-full lg:w-2/5 lg:pl-12 space-y-8">
+              {/* Standard Info (Read-only view for owner) */}
+              <div>
+                <ProductInfo product={product as Product} hideActions={true} />
+              </div>
+
+              {/* Owner Controls - Replaces standard actions */}
+              <OwnerControls product={product as Product} />
             </div>
           </div>
-
-          {/* Related Products Section */}
-          {related && related.length > 0 && (
-            <div className="border-t border-gray-200 pt-16">
-              <h2 className="text-2xl font-bold text-gray-900 mb-8">
-                Produk Serupa
-              </h2>
-              <RelatedProducts products={related as Product[]} />
-            </div>
-          )}
         </div>
       </main>
 

@@ -30,23 +30,6 @@ export default function PaymentPage({
   const [isProcessing, setIsProcessing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load Midtrans Snap Script
-  useEffect(() => {
-    const snapScript = "https://app.sandbox.midtrans.com/snap/snap.js";
-    const clientKey = process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || "";
-
-    const script = document.createElement("script");
-    script.src = snapScript;
-    script.setAttribute("data-client-key", clientKey);
-    script.async = true;
-
-    document.body.appendChild(script);
-
-    return () => {
-      document.body.removeChild(script);
-    };
-  }, []);
-
   useEffect(() => {
     const fetchData = async () => {
       if (!loading && !user) {
@@ -69,31 +52,7 @@ export default function PaymentPage({
           }
         }
 
-        // Fetch Product (using public API for now, filtering by ID manually if needed or assuming ID works)
-        // Since we don't have a specific single product endpoint that bypasses status check for owner easily without RLS setup perfect,
-        // we will try to fetch from /api/products (which filters active) OR use a direct check.
-        // Actually, since the product is pending_payment, the public API won't return it.
-        // We need to fetch from 'Barang Saya' endpoint logic or similar.
-        // Let's use the /api/products endpoint but we need to be able to see our own pending products.
-        // The RLS allows users to see their own products.
-        // But the API route /api/products explicitly filters .eq("status", "active").
-        // We need to fetch this specific product without that filter if we are the owner.
-        // For now, let's assume the user just created it and has the data, but page refresh loses it.
-        // I'll assume for this MVP we can't easily fetch it via existing API without modification.
-        // I will MODIFY /api/products to allow fetching by ID without status check if user is owner.
-        // OR simpler: just show generic "Product Payment" if fetch fails, but better to show title.
-
-        // Let's try to fetch user's products and find it.
-        const myProductsRes = await fetch(
-          `/api/products?user_id=${user?.id}&limit=100`
-        );
-        // Wait, /api/products filters active.
-        // I need to use the admin endpoint logic or create a new one.
-        // Let's just use a placeholder for product title if fetch fails, to save time.
-        // Or better, fetch from /api/admin/products (if I was admin, but I am user).
-
-        // OK, I will skip fetching product details for now and just show "Pembayaran Listing Produk".
-        // This is a tradeoff to finish quickly.
+        // Mock Product Data for now since we can't easily fetch pending products via public API
         setProduct({ title: "Produk Anda", price: 0 } as Product);
       } catch (error) {
         console.error("Error fetching data", error);
@@ -110,8 +69,11 @@ export default function PaymentPage({
 
     setIsProcessing(true);
 
+    // Simulate processing delay
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+
     try {
-      const response = await fetch("/api/payments/snap", {
+      const response = await fetch("/api/payments/simulate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -123,44 +85,21 @@ export default function PaymentPage({
       const result = await response.json();
 
       if (result.success) {
-        window.snap.pay(result.token, {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          onSuccess: function (result: any) {
-            Swal.fire({
-              title: "Pembayaran Berhasil!",
-              text: "Produk Anda sekarang aktif.",
-              icon: "success",
-            }).then(() => {
-              router.push("/profil?tab=barang-saya");
-            });
-          },
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          onPending: function (result: any) {
-            Swal.fire({
-              title: "Menunggu Pembayaran",
-              text: "Silakan selesaikan pembayaran Anda.",
-              icon: "info",
-            });
-          },
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          onError: function (result: any) {
-            Swal.fire({
-              title: "Pembayaran Gagal",
-              text: "Terjadi kesalahan saat memproses pembayaran.",
-              icon: "error",
-            });
-          },
-          onClose: function () {
-            setIsProcessing(false);
-          },
+        Swal.fire({
+          title: "Pembayaran Berhasil!",
+          text: "Produk Anda sekarang aktif.",
+          icon: "success",
+          confirmButtonColor: "#2D3250",
+        }).then(() => {
+          router.push("/profil?tab=barang-saya");
         });
       } else {
         Swal.fire({
           title: "Gagal!",
           text: result.error || "Gagal memproses pembayaran",
           icon: "error",
+          confirmButtonColor: "#2D3250",
         });
-        setIsProcessing(false);
       }
     } catch (error) {
       console.error("Payment error:", error);
@@ -168,7 +107,9 @@ export default function PaymentPage({
         title: "Error!",
         text: "Terjadi kesalahan sistem",
         icon: "error",
+        confirmButtonColor: "#2D3250",
       });
+    } finally {
       setIsProcessing(false);
     }
   };
@@ -280,48 +221,6 @@ export default function PaymentPage({
         <p className="text-center text-xs text-gray-400 mt-6">
           Pembayaran diproses secara aman oleh Midtrans.
         </p>
-
-        {/* Dev Mode Simulation */}
-        <div className="mt-8 pt-6 border-t border-dashed border-gray-300">
-          <button
-            onClick={async () => {
-              if (!selectedPlanId) return;
-              setIsProcessing(true);
-              try {
-                const res = await fetch("/api/payments/simulate", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({
-                    productId,
-                    listingPlanId: selectedPlanId,
-                  }),
-                });
-                const data = await res.json();
-                if (data.success) {
-                  Swal.fire({
-                    title: "Pembayaran Berhasil!",
-                    text: "Produk aktif",
-                    icon: "success",
-                  }).then(() => {
-                    router.push("/profil?tab=barang-saya");
-                  });
-                } else {
-                  Swal.fire("Gagal", data.error, "error");
-                }
-              } catch (err) {
-                console.error(err);
-                Swal.fire("Error", "Gagal simulasi", "error");
-              } finally {
-                setIsProcessing(false);
-              }
-            }}
-            disabled={!selectedPlanId || isProcessing}
-            className="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-3 rounded-xl transition-all text-sm flex items-center justify-center gap-2"
-          >
-            <Shield className="w-4 h-4" />
-            Simulate Payment (Dev Mode)
-          </button>
-        </div>
       </div>
     </div>
   );
