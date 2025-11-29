@@ -7,6 +7,7 @@ import { Product } from "@/types";
 import Image from "next/image";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useAuth } from "@/contexts/AuthContext";
+import { useRouter } from "next/navigation";
 
 type ProductInfoProps = {
   product: Product;
@@ -18,6 +19,7 @@ export default function ProductInfo({
   hideActions = false,
 }: ProductInfoProps) {
   const { user } = useAuth();
+  const router = useRouter();
   const { isFavorite, addFavorite, removeFavorite } = useFavorites();
   const isLiked = isFavorite(product.id);
 
@@ -60,7 +62,7 @@ export default function ProductInfo({
         cancelButtonText: "Batal",
       }).then((result) => {
         if (result.isConfirmed) {
-          window.location.href = "/login";
+          router.push("/login");
         }
       });
       return;

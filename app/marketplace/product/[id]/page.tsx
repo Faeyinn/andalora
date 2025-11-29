@@ -6,6 +6,7 @@ import Footer from "@/components/shared/Footer";
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Product } from "@/types";
+import Link from "next/link";
 
 type ProductPageParams = {
   params: Promise<{
@@ -66,9 +67,9 @@ export default async function ProductDetailPage({ params }: ProductPageParams) {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           {/* Breadcrumb (Optional but good for UX) */}
           <div className="mb-8 flex items-center gap-2 text-sm text-gray-500">
-            <a href="/marketplace" className="hover:text-purple-600">
+            <Link href="/marketplace" className="hover:text-purple-600">
               Marketplace
-            </a>
+            </Link>
             <span>/</span>
             <span className="text-gray-900 font-medium truncate max-w-[200px]">
               {product.title}
@@ -85,10 +86,7 @@ export default async function ProductDetailPage({ params }: ProductPageParams) {
 
           {/* Related Products Section */}
           {related && related.length > 0 && (
-            <div className="border-t border-gray-200 pt-16">
-              <h2 className="text-2xl font-bold text-gray-900 mb-8">
-                Produk Serupa
-              </h2>
+            <div className="border-t border-gray-200 pt-4">
               <RelatedProducts products={related as Product[]} />
             </div>
           )}

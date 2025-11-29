@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Product } from "@/types";
 import { Heart } from "lucide-react";
@@ -22,6 +23,7 @@ export default function ProductCard({
 }: ProductCardProps) {
   const { isFavorite, addFavorite, removeFavorite } = useFavorites();
   const { user } = useAuth();
+  const router = useRouter();
   const isLiked = isFavorite(product.id);
   const isOwner = user?.id === product.user_id;
 
@@ -40,7 +42,7 @@ export default function ProductCard({
         cancelButtonText: "Batal",
       }).then((result) => {
         if (result.isConfirmed) {
-          window.location.href = "/login";
+          router.push("/login");
         }
       });
       return;

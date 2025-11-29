@@ -2,13 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Search,
-  Filter,
-  ChevronRight,
-  Clock,
-  User,
-} from "lucide-react";
+import { Search, Filter, ChevronRight, Clock, User } from "lucide-react";
 import { motion } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
 
@@ -101,8 +95,8 @@ export default function AdminSupportPage() {
   );
 
   return (
-    <div className="p-8">
-      <div className="flex justify-between items-center mb-8">
+    <div className="p-4 md:p-8">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Support Tickets</h1>
           <p className="text-gray-500">Manage user complaints and inquiries</p>

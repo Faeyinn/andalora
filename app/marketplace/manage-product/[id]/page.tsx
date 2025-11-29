@@ -7,6 +7,7 @@ import { notFound, redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { Product } from "@/types";
+import Link from "next/link";
 
 type ProductPageParams = {
   params: Promise<{
@@ -66,9 +67,12 @@ export default async function ManageProductPage({ params }: ProductPageParams) {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           {/* Breadcrumb */}
           <div className="mb-8 flex items-center gap-2 text-sm text-gray-500">
-            <a href="/profil/barang-saya" className="hover:text-purple-600">
+            <Link
+              href="/profil?tab=barang-saya"
+              className="hover:text-purple-600"
+            >
               Barang Saya
-            </a>
+            </Link>
             <span>/</span>
             <span className="text-gray-900 font-medium truncate max-w-[200px]">
               Kelola: {product.title}

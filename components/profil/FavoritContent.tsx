@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import ProductCard from "@/components/product/ProductCard";
 import { useFavorites } from "@/hooks/useFavorites";
 import { Heart, ShoppingBag } from "lucide-react";
+import Link from "next/link";
 
 export const FavoritContent: React.FC = () => {
   const { favorites, loading, error, removeFavorite } = useFavorites();
@@ -63,13 +64,13 @@ export const FavoritContent: React.FC = () => {
             Simpan produk yang Anda sukai untuk dilihat nanti. Mulai jelajahi
             marketplace sekarang!
           </p>
-          <a
+          <Link
             href="/marketplace"
             className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors font-medium shadow-lg shadow-purple-500/30"
           >
             <ShoppingBag size={20} />
             Jelajahi Marketplace
-          </a>
+          </Link>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

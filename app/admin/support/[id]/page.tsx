@@ -154,7 +154,7 @@ export default function AdminTicketDetailPage({
   }
 
   return (
-    <div className="h-[calc(100vh-100px)] flex flex-col bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <div className="h-[calc(100vh-80px)] lg:h-[calc(100vh-100px)] flex flex-col bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
       {/* Header */}
       <div className="bg-white p-4 border-b border-gray-100 flex items-center justify-between z-10">
         <div className="flex items-center gap-4">

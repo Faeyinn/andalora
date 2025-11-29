@@ -15,10 +15,10 @@ export const HeroSection = () => {
   }, [inView, controls]);
 
   // Use numeric easing arrays (cubic bezier) instead of string names to satisfy framer-motion types
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const EASE_OUT: any = [0.22, 1, 0.36, 1];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const EASE_IN_OUT: any = [0.42, 0, 0.58, 1];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const EASE_OUT: any = [0.22, 1, 0.36, 1];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const EASE_IN_OUT: any = [0.42, 0, 0.58, 1];
 
   const panelVariants = {
     hidden: { opacity: 0, y: 18, scale: 0.995 },
@@ -37,7 +37,11 @@ export const HeroSection = () => {
 
   const textItem = {
     hidden: { opacity: 0, y: 12 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: EASE_OUT } },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.45, ease: EASE_OUT },
+    },
   };
 
   return (

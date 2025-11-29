@@ -111,7 +111,7 @@ export default function AdminSettingsPage() {
 
       Swal.fire("Berhasil", "Profil berhasil diperbarui", "success");
       fetchProfile();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       Swal.fire("Gagal", error.message || "Gagal memperbarui profil", "error");
     } finally {
@@ -149,16 +149,16 @@ export default function AdminSettingsPage() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <h1 className="text-3xl font-bold text-gray-800">Settings</h1>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Sidebar Tabs */}
-        <div className="w-full lg:w-64 flex-shrink-0 space-y-2">
+        <div className="w-full lg:w-64 flex-shrink-0 flex lg:flex-col gap-2 overflow-x-auto pb-2 lg:pb-0 scrollbar-hide">
           <button
             onClick={() => setActiveTab("profile")}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${
+            className={`flex-shrink-0 lg:w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${
               activeTab === "profile"
                 ? "bg-purple-600 text-white shadow-lg shadow-purple-200"
                 : "bg-white text-gray-600 hover:bg-gray-50 border border-gray-100"
@@ -169,7 +169,7 @@ export default function AdminSettingsPage() {
           </button>
           <button
             onClick={() => setActiveTab("general")}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${
+            className={`flex-shrink-0 lg:w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${
               activeTab === "general"
                 ? "bg-purple-600 text-white shadow-lg shadow-purple-200"
                 : "bg-white text-gray-600 hover:bg-gray-50 border border-gray-100"
@@ -180,7 +180,7 @@ export default function AdminSettingsPage() {
           </button>
           <button
             onClick={() => setActiveTab("notifications")}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${
+            className={`flex-shrink-0 lg:w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${
               activeTab === "notifications"
                 ? "bg-purple-600 text-white shadow-lg shadow-purple-200"
                 : "bg-white text-gray-600 hover:bg-gray-50 border border-gray-100"

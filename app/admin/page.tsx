@@ -122,7 +122,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="p-6 space-y-8">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
           <p className="text-gray-500 mt-1">Overview statistik marketplace</p>
