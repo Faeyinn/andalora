@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { RegisterForm } from '@/components/auth/RegisterForm';
-import { HelpButton } from '@/components/auth/HelpButton';
-import { Logo } from '@/components/shared/Logo';
-import { IllustrationSection } from '@/components/auth/IllustrationSection';
+import React from "react";
+import { RegisterForm } from "@/components/auth/RegisterForm";
+import { HelpButton } from "@/components/auth/HelpButton";
+import { Logo } from "@/components/shared/Logo";
+import { IllustrationSection } from "@/components/auth/IllustrationSection";
 
 export default function LoginPage() {
   return (
@@ -13,14 +13,14 @@ export default function LoginPage() {
       <div className="absolute top-6 left-6 z-10">
         <Logo />
       </div>
-      
+
       {/* Help button */}
       <div className="absolute top-6 right-6 z-10">
         <HelpButton />
       </div>
-      
+
       {/* Left section - Register Form */}
-      <div className="w-full lg:w-1/3 flex items-center justify-center p-6 md:p-12">
+      <div className="w-full lg:w-1/3 flex flex-col justify-center items-center p-6 pt-24 md:p-12 min-h-screen">
         <RegisterForm />
       </div>
 
