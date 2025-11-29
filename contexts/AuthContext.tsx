@@ -45,6 +45,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const result = await response.json();
           setUser(result.data);
         } else {
+          console.warn("Failed to fetch user profile, signing out...");
+          await supabase.auth.signOut();
           setUser(null);
         }
       } else {

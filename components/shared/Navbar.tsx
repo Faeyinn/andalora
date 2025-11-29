@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { Logo } from "@/components/shared/Logo";
 import { createClient } from "@/lib/supabase/client";
-import { LogOut, Menu, X } from "lucide-react";
+import { LogOut, Menu, X, LogIn } from "lucide-react";
 import Swal from "sweetalert2";
 
 export const Navbar = () => {
@@ -102,6 +102,14 @@ export const Navbar = () => {
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-8">
             {menuItems.map((item, index) => {
+              // Hide protected items if not logged in
+              if (
+                !user &&
+                (item.href === "/profil" || item.href === "/notifikasi")
+              ) {
+                return null;
+              }
+
               const isActive = pathname === item.href;
               return (
                 <div key={index} className="relative inline-flex items-center">
@@ -142,6 +150,23 @@ export const Navbar = () => {
                 </div>
               );
             })}
+
+            {/* Auth Buttons */}
+            {user ? (
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-full font-medium transition-colors text-sm"
+              >
+                Logout
+              </button>
+            ) : (
+              <Link
+                href="/login"
+                className="px-6 py-2 bg-[#2D3250] text-white hover:bg-[#1f2337] rounded-full font-medium transition-colors text-sm shadow-md hover:shadow-lg"
+              >
+                Masuk
+              </Link>
+            )}
           </div>
 
           {/* Mobile Toggle */}
@@ -166,6 +191,14 @@ export const Navbar = () => {
           >
             <div className="px-4 py-4 space-y-2">
               {menuItems.map((item, index) => {
+                // Hide protected items if not logged in
+                if (
+                  !user &&
+                  (item.href === "/profil" || item.href === "/notifikasi")
+                ) {
+                  return null;
+                }
+
                 const isActive = pathname === item.href;
                 return (
                   <Link
@@ -188,9 +221,9 @@ export const Navbar = () => {
                 );
               })}
 
-              {/* Mobile Logout Button */}
-              {user && (
-                <div className="pt-2 mt-2 border-t border-purple-200">
+              {/* Mobile Auth Buttons */}
+              <div className="pt-2 mt-2 border-t border-purple-200">
+                {user ? (
                   <button
                     onClick={handleLogout}
                     className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 transition-colors font-medium"
@@ -198,8 +231,17 @@ export const Navbar = () => {
                     <LogOut size={20} />
                     <span>Logout</span>
                   </button>
-                </div>
-              )}
+                ) : (
+                  <Link
+                    href="/login"
+                    onClick={() => setMobileOpen(false)}
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-[#2D3250] text-white hover:bg-[#1f2337] transition-colors font-medium"
+                  >
+                    <LogIn size={20} />
+                    <span>Masuk</span>
+                  </Link>
+                )}
+              </div>
             </div>
           </motion.div>
         )}
