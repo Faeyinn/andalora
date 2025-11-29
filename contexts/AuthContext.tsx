@@ -96,6 +96,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify(data),
       });
 
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        const text = await response.text();
+        console.error("Signup response was not JSON:", text);
+        return {
+          success: false,
+          error: `Server Error (${response.status}): ${text.slice(0, 100)}...`,
+        };
+      }
+
       const result = await response.json();
 
       if (result.success) {
@@ -117,6 +127,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
+
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        const text = await response.text();
+        console.error("Login response was not JSON:", text);
+        return {
+          success: false,
+          error: `Server Error (${response.status}): ${text.slice(0, 100)}...`,
+        };
+      }
 
       const result = await response.json();
 

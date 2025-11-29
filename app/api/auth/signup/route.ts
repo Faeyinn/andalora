@@ -4,7 +4,16 @@ import type { SignupRequest } from "@/types";
 
 export async function POST(request: Request) {
   try {
-    const body: SignupRequest = await request.json();
+    let body: SignupRequest;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        { success: false, error: "Invalid JSON body" },
+        { status: 400 }
+      );
+    }
+
     const { email, password, full_name, phone, whatsapp, university, nim } =
       body;
 

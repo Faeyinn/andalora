@@ -35,6 +35,15 @@ export default function ProductInfo({
       cancelButtonText: "Batal",
     }).then((result) => {
       if (result.isConfirmed) {
+        // Create notification for seller
+        if (user) {
+          fetch("/api/notifications/contact-seller", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ product_id: product.id }),
+          }).catch((err) => console.error("Failed to notify seller:", err));
+        }
+
         if (product.user?.whatsapp) {
           const message = `Halo, saya tertarik dengan produk "${
             product.title

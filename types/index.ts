@@ -97,7 +97,10 @@ export type NotificationType =
   | "listing_expired"
   | "product_sold"
   | "payment_success"
-  | "payment_failed";
+  | "payment_failed"
+  | "support"
+  | "transaction"
+  | "system";
 
 export type Notification = {
   id: string;
@@ -106,6 +109,7 @@ export type Notification = {
   title: string;
   message: string;
   is_read: boolean;
+  link?: string | null;
   related_product_id?: string;
   created_at: string;
   // Joined data

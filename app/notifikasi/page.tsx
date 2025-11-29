@@ -17,15 +17,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 
-interface Notification {
-  id: string;
-  title: string;
-  message: string;
-  type: "system" | "support" | "transaction";
-  link: string | null;
-  is_read: boolean;
-  created_at: string;
-}
+import { Notification } from "@/types";
 
 export default function NotificationsPage() {
   const { user, loading } = useAuth();
@@ -169,7 +161,14 @@ export default function NotificationsPage() {
       case "support":
         return <MessageSquare className="text-blue-500" size={24} />;
       case "transaction":
+      case "product_sold":
+      case "payment_success":
         return <ShoppingBag className="text-green-500" size={24} />;
+      case "payment_failed":
+      case "listing_expired":
+        return <Info className="text-red-500" size={24} />;
+      case "listing_approved":
+        return <CheckCheck className="text-teal-500" size={24} />;
       default:
         return <Info className="text-purple-500" size={24} />;
     }
@@ -180,7 +179,14 @@ export default function NotificationsPage() {
       case "support":
         return "bg-blue-100";
       case "transaction":
+      case "product_sold":
+      case "payment_success":
         return "bg-green-100";
+      case "payment_failed":
+      case "listing_expired":
+        return "bg-red-100";
+      case "listing_approved":
+        return "bg-teal-100";
       default:
         return "bg-purple-100";
     }

@@ -157,7 +157,7 @@ export const RegisterForm = () => {
               name="phone"
               value={formData.phone}
               onChange={handleInputChange}
-              placeholder="No. Telepon (08...)"
+              placeholder="No. Telepon (628...)"
               className="w-full px-4 py-3 bg-gray-100 text-gray-500 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all placeholder-gray-500"
             />
           </div>
@@ -168,7 +168,7 @@ export const RegisterForm = () => {
               name="whatsapp"
               value={formData.whatsapp}
               onChange={handleInputChange}
-              placeholder="No. WhatsApp (08...)"
+              placeholder="No. WhatsApp (628...)"
               className="w-full px-4 py-3 bg-gray-100 text-gray-500 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all placeholder-gray-500"
             />
           </div>
