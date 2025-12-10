@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -27,6 +28,14 @@ export default function ProductCard({
   const isLiked = isFavorite(product.id);
   const isOwner = user?.id === product.user_id;
 
+  // Optimistic UI state
+  const [optimisticLiked, setOptimisticLiked] = useState(isLiked);
+
+  // Sync optimistic state with actual data when it changes
+  useEffect(() => {
+    setOptimisticLiked(isLiked);
+  }, [isLiked]);
+
   const handleToggleFavorite = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -48,38 +57,56 @@ export default function ProductCard({
       return;
     }
 
-    if (isLiked) {
+    // Optimistic update
+    const previousState = optimisticLiked;
+    setOptimisticLiked(!previousState);
+
+    if (previousState) {
+      // Was liked, so remove it
       const result = await removeFavorite(product.id);
-      if (result.success) {
+      if (!result.success) {
+        // Revert on failure
+        setOptimisticLiked(previousState);
         Swal.fire({
-          icon: "success",
-          title: "Dihapus dari Favorit",
-          toast: true,
-          position: "top-end",
-          showConfirmButton: false,
-          timer: 1500,
-          timerProgressBar: true,
+          icon: "error",
+          title: "Gagal",
+          text: result.error || "Gagal menghapus dari favorit",
         });
+        return;
       }
+      // Success toast
+      Swal.fire({
+        icon: "success",
+        title: "Dihapus dari Favorit",
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+      });
     } else {
+      // Was not liked, so add it
       const result = await addFavorite(product.id);
-      if (result.success) {
-        Swal.fire({
-          icon: "success",
-          title: "Ditambah ke Favorit",
-          toast: true,
-          position: "top-end",
-          showConfirmButton: false,
-          timer: 1500,
-          timerProgressBar: true,
-        });
-      } else {
+      if (!result.success) {
+        // Revert on failure
+        setOptimisticLiked(previousState);
         Swal.fire({
           icon: "error",
           title: "Gagal",
           text: result.error || "Gagal menambahkan ke favorit",
         });
+        return;
       }
+      // Success toast
+      Swal.fire({
+        icon: "success",
+        title: "Ditambah ke Favorit",
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+      });
     }
   };
 
@@ -145,12 +172,15 @@ export default function ProductCard({
             <button
               onClick={handleToggleFavorite}
               className={`p-2 rounded-full shadow-sm transition-colors ${
-                isLiked
+                optimisticLiked
                   ? "bg-red-50 text-red-500 hover:bg-red-100"
                   : "bg-white/90 text-gray-700 hover:bg-purple-600 hover:text-white"
               }`}
             >
-              <Heart size={18} className={isLiked ? "fill-current" : ""} />
+              <Heart
+                size={18}
+                className={optimisticLiked ? "fill-current" : ""}
+              />
             </button>
           </div>
 

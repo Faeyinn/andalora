@@ -52,7 +52,7 @@ export const HeroSection = () => {
       <div
         className="absolute inset-0 bg-cover bg-center"
         style={{
-          backgroundImage: "url(/bg-dashboard-edmt.png)",
+          backgroundImage: "url(/hero-product.png)",
           transformOrigin: "center",
         }}
       />

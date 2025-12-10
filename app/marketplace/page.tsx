@@ -1,7 +1,7 @@
 "use client";
 
 import { Navbar } from "@/components/shared/Navbar";
-import { HeroSection } from "@/components/home/HeroSection";
+import { MarketplaceHeroSection } from "@/components/marketplace/MarketplaceHeroSection";
 import { ProductGrid } from "@/components/home/ProductGrid";
 import { Footer } from "@/components/home/Footer";
 import { motion } from "framer-motion";
@@ -19,13 +19,14 @@ export default function MarketplacePage() {
       </div>
 
       <div className="relative z-10 pt-16">
-        <HeroSection />
+        <MarketplaceHeroSection />
 
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
           className="relative"
+          id="product-grid"
         >
           {/* Decorative Divider */}
           <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-white to-transparent pointer-events-none" />

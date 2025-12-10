@@ -14,19 +14,9 @@ export default function FAQPage() {
         "Untuk menjual barang, Anda perlu mendaftar akun terlebih dahulu. Setelah login, klik tombol 'Jual Barang' di pojok kanan atas atau melalui menu profil. Isi detail produk, upload foto, dan tentukan harga.",
     },
     {
-      question: "Apakah ada biaya administrasi?",
-      answer:
-        "Saat ini Andalora tidak membebankan biaya administrasi untuk penjual. Semua hasil penjualan 100% milik Anda.",
-    },
-    {
       question: "Bagaimana sistem pembayarannya?",
       answer:
-        "Pembeli dapat membayar menggunakan berbagai metode pembayaran yang tersedia (Transfer Bank, E-Wallet). Dana akan ditahan oleh Andalora dan diteruskan ke penjual setelah pembeli mengonfirmasi penerimaan barang.",
-    },
-    {
-      question: "Apakah aman bertransaksi di Andalora?",
-      answer:
-        "Ya, kami menggunakan sistem Rekening Bersama (Rekber) untuk menjamin keamanan transaksi. Uang pembeli aman sampai barang diterima.",
+        "Untuk penjual setelah mengupload produk yang akan dijual, maka akan terarah ke halaman pembayaran yang mana penjual dapat memilih paket listing product yang diinginkan. Pembeli dapat membayar menggunakan berbagai metode pembayaran yang disediakan oleh tiap tiap penjual.",
     },
     {
       question: "Bagaimana jika barang tidak sesuai?",
