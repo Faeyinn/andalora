@@ -16,7 +16,7 @@ export default function FAQPage() {
     {
       question: "Bagaimana sistem pembayarannya?",
       answer:
-        "Untuk penjual setelah mengupload produk yang akan dijual, maka akan terarah ke halaman pembayaran yang mana penjual dapat memilih paket listing product yang diinginkan. Pembeli dapat membayar menggunakan berbagai metode pembayaran yang disediakan oleh tiap tiap penjual.",
+        "Untuk penjual, setelah mengupload produk yang akan dijual, maka akan terarah ke halaman pembayaran yang mana penjual dapat memilih paket listing product yang diinginkan. Pembeli dapat membayar menggunakan berbagai metode pembayaran yang disediakan oleh tiap tiap penjual.",
     },
     {
       question: "Bagaimana jika barang tidak sesuai?",
