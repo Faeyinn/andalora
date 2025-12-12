@@ -236,6 +236,24 @@ export async function DELETE(
       );
     }
 
+    // Delete related data first using admin client to bypass RLS
+    const supabaseAdmin = createAdminClient();
+
+    // 1. Delete transactions
+    await supabaseAdmin.from("transactions").delete().eq("product_id", id);
+
+    // 2. Delete listing payments
+    await supabaseAdmin.from("listing_payments").delete().eq("product_id", id);
+
+    // 3. Delete favorites
+    await supabaseAdmin.from("favorites").delete().eq("product_id", id);
+
+    // 4. Delete notifications related to this product
+    await supabaseAdmin
+      .from("notifications")
+      .delete()
+      .eq("related_product_id", id);
+
     // Delete product
     const { error } = await supabase.from("products").delete().eq("id", id);
 
@@ -247,7 +265,7 @@ export async function DELETE(
           {
             success: false,
             error:
-              "Produk tidak dapat dihapus karena memiliki riwayat transaksi atau data terkait lainnya. Silahkan arsipkan produk atau hubungi admin.",
+              "Produk tidak dapat dihapus karena masih ada data terkait yang tidak dapat dihapus otomatis. Silahkan arsipkan produk atau hubungi admin.",
           },
           { status: 400 }
         );

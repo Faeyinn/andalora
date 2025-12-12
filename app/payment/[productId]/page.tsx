@@ -135,7 +135,7 @@ export default function PaymentPage({
 
         <div className="text-center mb-10">
           <h1 className="text-3xl font-bold text-gray-900 mb-4">
-            Aktifkan Iklan Anda
+            Aktifkan Product Anda di Andalora !
           </h1>
           <p className="text-gray-600 max-w-2xl mx-auto">
             Pilih paket listing untuk menampilkan produk Anda di marketplace.

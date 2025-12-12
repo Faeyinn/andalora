@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 import type { SignupRequest } from "@/types";
 
@@ -46,6 +47,61 @@ export async function POST(request: Request) {
     if (password.length < 6) {
       return NextResponse.json(
         { success: false, error: "Password minimal 6 karakter" },
+        { status: 400 }
+      );
+    }
+
+    const supabaseAdmin = createAdminClient();
+
+    // Check for existing users with same specific fields
+    const { data: existingNim } = await supabaseAdmin
+      .from("users")
+      .select("id")
+      .eq("nim", nim)
+      .single();
+
+    if (existingNim) {
+      return NextResponse.json(
+        { success: false, error: "NIM telah digunakan" },
+        { status: 400 }
+      );
+    }
+
+    const { data: existingPhone } = await supabaseAdmin
+      .from("users")
+      .select("id")
+      .eq("phone", phone)
+      .single();
+
+    if (existingPhone) {
+      return NextResponse.json(
+        { success: false, error: "Nomor HP telah digunakan" },
+        { status: 400 }
+      );
+    }
+
+    const { data: existingWa } = await supabaseAdmin
+      .from("users")
+      .select("id")
+      .eq("whatsapp", whatsapp)
+      .single();
+
+    if (existingWa) {
+      return NextResponse.json(
+        { success: false, error: "Nomor WhatsApp telah digunakan" },
+        { status: 400 }
+      );
+    }
+
+    const { data: existingEmail } = await supabaseAdmin
+      .from("users")
+      .select("id")
+      .eq("email", email)
+      .single();
+
+    if (existingEmail) {
+      return NextResponse.json(
+        { success: false, error: "Email telah digunakan" },
         { status: 400 }
       );
     }

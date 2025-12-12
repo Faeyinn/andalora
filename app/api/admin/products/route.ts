@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
@@ -123,6 +124,24 @@ export async function DELETE(request: Request) {
       );
     }
 
+    // Delete related data first using admin client
+    const supabaseAdmin = createAdminClient();
+
+    // 1. Delete transactions
+    await supabaseAdmin.from("transactions").delete().eq("product_id", id);
+
+    // 2. Delete listing payments
+    await supabaseAdmin.from("listing_payments").delete().eq("product_id", id);
+
+    // 3. Delete favorites
+    await supabaseAdmin.from("favorites").delete().eq("product_id", id);
+
+    // 4. Delete notifications related to this product
+    await supabaseAdmin
+      .from("notifications")
+      .delete()
+      .eq("related_product_id", id);
+
     // Delete product
     const { error } = await supabase.from("products").delete().eq("id", id);
 
@@ -134,7 +153,7 @@ export async function DELETE(request: Request) {
           {
             success: false,
             error:
-              "Produk tidak dapat dihapus karena memiliki riwayat transaksi. Silahkan sembunyikan produk saja.",
+              "Produk tidak dapat dihapus karena masih ada data terkait yang tidak dapat dihapus otomatis.",
           },
           { status: 400 }
         );

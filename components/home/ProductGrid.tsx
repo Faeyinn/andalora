@@ -27,8 +27,6 @@ export const ProductGrid = () => {
     { id: "fashion", name: "Fashion" },
     { id: "buku", name: "Buku" },
     { id: "olahraga", name: "Olahraga" },
-    { id: "kebutuhan-kos", name: "Kebutuhan Kos" },
-    { id: "jasa", name: "Jasa" },
     { id: "lainnya", name: "Lainnya" },
   ];
 
