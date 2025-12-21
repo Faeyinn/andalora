@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
@@ -58,9 +59,21 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
         {/* User Mini Profile */}
         <div className="p-6 bg-gradient-to-br from-[#2D3250] to-[#424769] text-white">
           <div className="flex items-center gap-4 mb-4">
-            <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-xl font-bold border border-white/30">
-              {user?.full_name?.charAt(0) || "G"}
-            </div>
+            {user?.avatar_url ? (
+              <div className="w-12 h-12 rounded-full overflow-hidden border border-white/30">
+                <Image
+                  src={user.avatar_url}
+                  alt={user.full_name || "Avatar"}
+                  width={48}
+                  height={48}
+                  className="object-cover"
+                />
+              </div>
+            ) : (
+              <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-xl font-bold border border-white/30">
+                {user?.full_name?.charAt(0) || "G"}
+              </div>
+            )}
             <div className="overflow-hidden">
               <h2 className="font-bold text-lg truncate">
                 {user?.full_name || "Guest"}

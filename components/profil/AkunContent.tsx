@@ -282,14 +282,12 @@ export const AkunContent = () => {
     >
       {/* Header Card */}
       <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="h-32 bg-gradient-to-r from-purple-600 to-indigo-600 relative">
-          <div className="absolute inset-0 bg-black/10"></div>
-        </div>
+        <div className="h-32 bg-gray-50 relative"></div>
 
         <div className="px-8 pb-8">
-          <div className="relative -mt-16 mb-6 flex justify-between items-end">
+          <div className="relative -mt-14 mb-6 flex justify-between items-end">
             <div className="relative group">
-              <div className="w-32 h-32 rounded-full border-4 border-white shadow-lg overflow-hidden bg-gray-100 relative">
+              <div className="w-28 h-28 rounded-full border-2 border-white shadow-sm overflow-hidden bg-gray-100 relative">
                 {user.avatar_url ? (
                   <Image
                     src={user.avatar_url}
@@ -330,7 +328,7 @@ export const AkunContent = () => {
             {!isEditing && (
               <button
                 onClick={handleEdit}
-                className="px-6 py-2.5 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-colors font-medium shadow-lg shadow-gray-900/20"
+                className="px-5 py-2.5 bg-white text-gray-900 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors font-medium"
               >
                 Edit Profil
               </button>
@@ -348,8 +346,8 @@ export const AkunContent = () => {
 
       {/* Form Card */}
       <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8">
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-xl font-bold text-gray-900">Informasi Pribadi</h2>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-lg font-semibold text-gray-900">Informasi Pribadi</h2>
           {isEditing && (
             <span className="text-sm text-purple-600 font-medium bg-purple-50 px-3 py-1 rounded-full">
               Mode Edit
@@ -357,7 +355,7 @@ export const AkunContent = () => {
           )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
           {/* Full Name */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
@@ -370,10 +368,10 @@ export const AkunContent = () => {
               value={formData.full_name}
               onChange={handleInputChange}
               disabled={!isEditing}
-              className={`w-full px-4 py-3 rounded-xl border transition-all ${
+              className={`w-full px-4 py-3 rounded-lg border transition-all ${
                 isEditing
                   ? "border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 bg-white"
-                  : "border-transparent bg-gray-50 text-gray-600"
+                  : "border-gray-100 bg-gray-50 text-gray-700"
               }`}
             />
           </div>
@@ -388,7 +386,7 @@ export const AkunContent = () => {
               type="email"
               value={user.email}
               disabled
-              className="w-full px-4 py-3 rounded-xl border border-transparent bg-gray-50 text-gray-500 cursor-not-allowed"
+              className="w-full px-4 py-3 rounded-lg border border-gray-100 bg-gray-50 text-gray-600 cursor-not-allowed"
             />
           </div>
 
@@ -404,10 +402,10 @@ export const AkunContent = () => {
               value={formData.phone}
               onChange={handleInputChange}
               disabled={!isEditing}
-              className={`w-full px-4 py-3 rounded-xl border transition-all ${
+              className={`w-full px-4 py-3 rounded-lg border transition-all ${
                 isEditing
                   ? "border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 bg-white"
-                  : "border-transparent bg-gray-50 text-gray-600"
+                  : "border-gray-100 bg-gray-50 text-gray-700"
               }`}
             />
           </div>
@@ -424,10 +422,10 @@ export const AkunContent = () => {
               value={formData.whatsapp}
               onChange={handleInputChange}
               disabled={!isEditing}
-              className={`w-full px-4 py-3 rounded-xl border transition-all ${
+              className={`w-full px-4 py-3 rounded-lg border transition-all ${
                 isEditing
                   ? "border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 bg-white"
-                  : "border-transparent bg-gray-50 text-gray-600"
+                  : "border-gray-100 bg-gray-50 text-gray-700"
               }`}
             />
           </div>
@@ -444,10 +442,10 @@ export const AkunContent = () => {
               value={formData.university}
               onChange={handleInputChange}
               disabled={!isEditing}
-              className={`w-full px-4 py-3 rounded-xl border transition-all ${
+              className={`w-full px-4 py-3 rounded-lg border transition-all ${
                 isEditing
                   ? "border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 bg-white"
-                  : "border-transparent bg-gray-50 text-gray-600"
+                  : "border-gray-100 bg-gray-50 text-gray-700"
               }`}
             />
           </div>
@@ -464,10 +462,10 @@ export const AkunContent = () => {
               value={formData.nim}
               onChange={handleInputChange}
               disabled={!isEditing}
-              className={`w-full px-4 py-3 rounded-xl border transition-all ${
+              className={`w-full px-4 py-3 rounded-lg border transition-all ${
                 isEditing
                   ? "border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 bg-white"
-                  : "border-transparent bg-gray-50 text-gray-600"
+                  : "border-gray-100 bg-gray-50 text-gray-700"
               }`}
             />
           </div>
@@ -476,29 +474,29 @@ export const AkunContent = () => {
         {/* Action Buttons */}
         {isEditing && (
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex gap-4 pt-8 mt-8 border-t border-gray-100"
+            className="flex gap-3 pt-6 mt-6 border-t border-gray-100"
           >
             <button
               onClick={handleCancel}
               disabled={isLoading}
-              className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-medium"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
             >
-              <X size={18} />
+              <X size={16} />
               Batal
             </button>
             <button
               onClick={handleSave}
               disabled={isLoading}
-              className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors font-medium shadow-lg shadow-purple-500/30"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium"
             >
               {isLoading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
                 <>
-                  <Save size={18} />
-                  Simpan Perubahan
+                  <Save size={16} />
+                  Simpan
                 </>
               )}
             </button>

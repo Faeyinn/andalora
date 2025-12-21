@@ -38,12 +38,12 @@ export async function GET(request: Request) {
       category && !isUUID
         ? `
         *,
-        user:users(id, full_name, whatsapp, university),
+        user:users(id, full_name, whatsapp, university, avatar_url),
         category:categories!inner(id, name, slug)
       `
         : `
         *,
-        user:users(id, full_name, whatsapp, university),
+        user:users(id, full_name, whatsapp, university, avatar_url),
         category:categories(id, name, slug)
       `;
 

@@ -18,7 +18,7 @@ export async function GET(
       .select(
         `
         *,
-        user:users(id, full_name, whatsapp, university),
+                user:users(id, full_name, whatsapp, university, avatar_url),
         category:categories(id, name, slug),
         listing_plan:listing_plans(id, name, duration_days, price)
       `

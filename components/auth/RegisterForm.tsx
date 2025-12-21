@@ -33,6 +33,27 @@ export const RegisterForm = () => {
     }));
   };
 
+  const normalizePhone = (input: string) => {
+    if (!input) return input;
+    // keep only digits
+    let s = input.replace(/\D/g, "");
+    // remove leading zeros
+    s = s.replace(/^0+/, "");
+    // if starts with 8 -> prefix 62 => 628...
+    if (s.startsWith("8")) return `62${s}`;
+    // if already starts with country code 62, return as-is
+    if (s.startsWith("62")) return s;
+    // fallback: prefix with 62
+    return `62${s}`;
+  };
+
+  const handlePhoneBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    if (name !== "phone" && name !== "whatsapp") return;
+    const normalized = normalizePhone(value);
+    setFormData((prev) => ({ ...prev, [name]: normalized }));
+  };
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -157,6 +178,7 @@ export const RegisterForm = () => {
               name="phone"
               value={formData.phone}
               onChange={handleInputChange}
+              onBlur={handlePhoneBlur}
               placeholder="No. Telepon (628...)"
               className="w-full px-4 py-3 bg-gray-100 text-gray-500 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all placeholder-gray-500"
             />
@@ -168,6 +190,7 @@ export const RegisterForm = () => {
               name="whatsapp"
               value={formData.whatsapp}
               onChange={handleInputChange}
+              onBlur={handlePhoneBlur}
               placeholder="No. WhatsApp (628...)"
               className="w-full px-4 py-3 bg-gray-100 text-gray-500 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all placeholder-gray-500"
             />

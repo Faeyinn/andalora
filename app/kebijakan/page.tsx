@@ -12,57 +12,40 @@ export default function PolicyPage() {
       <Navbar />
 
       <main className="flex-grow pt-24 pb-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto bg-white rounded-3xl p-8 md:p-12 border border-gray-100 shadow-sm">
-          <div className="text-center mb-12">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.5 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="w-16 h-16 bg-purple-50 rounded-2xl flex items-center justify-center mx-auto text-purple-600 mb-6"
-            >
-              <Shield size={32} />
-            </motion.div>
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Kebijakan Penggunaan
-            </h1>
-            <p className="text-gray-500">
-              Terakhir diperbarui: {new Date().toLocaleDateString("id-ID")}
-            </p>
+        <div className="max-w-3xl mx-auto bg-white rounded-2xl p-8 md:p-10 border border-gray-100 shadow">
+          <div className="flex items-start gap-4 mb-8">
+            <div className="flex-shrink-0 w-12 h-12 bg-purple-50 rounded-lg flex items-center justify-center text-purple-600">
+              <Shield size={20} />
+            </div>
+            <div>
+              <h1 className="text-2xl md:text-3xl font-semibold text-gray-900">
+                Kebijakan Penggunaan
+              </h1>
+              <p className="text-sm text-gray-500 mt-1">Terakhir diperbarui: {new Date().toLocaleDateString("id-ID")}</p>
+            </div>
           </div>
 
-          <div className="prose prose-lg prose-purple max-w-none text-gray-600">
-            <h3>1. Pendahuluan</h3>
-            <p>
-              Selamat datang di Andalora. Kebijakan ini mengatur penggunaan
-              platform kami. Dengan mengakses Andalora, Anda menyetujui untuk
-              mematuhi kebijakan ini.
-            </p>
+          <div className="space-y-6 text-gray-700 leading-relaxed">
+            <section>
+              <h2 className="text-lg font-semibold text-gray-900 mb-2">1. Pendahuluan</h2>
+              <p className="text-sm">Selamat datang di Andalora. Kebijakan ini menjelaskan aturan dan ketentuan penggunaan platform kami. Dengan mengakses atau menggunakan Andalora, Anda setuju untuk mematuhi kebijakan ini.</p>
+            </section>
 
-            <h3>2. Barang yang Dilarang</h3>
-            <p>
-              Kami melarang penjualan barang-barang berikut demi keamanan
-              komunitas:
-            </p>
-            <ul>
-              <li>Barang ilegal atau curian</li>
-              <li>Senjata tajam dan bahan peledak</li>
-              <li>Obat-obatan terlarang</li>
-              <li>Konten dewasa atau pornografi</li>
-              <li>Barang palsu atau tiruan (KW)</li>
-            </ul>
+            <section>
+              <h2 className="text-lg font-semibold text-gray-900 mb-2">2. Barang yang Dilarang</h2>
+                <p className="text-sm mb-2">Untuk menjaga keamanan komunitas, pengguna dilarang menawarkan barang atau layanan berikut.</p>
+                <p className="text-sm">Barang ilegal atau hasil curian. Senjata tajam dan bahan peledak. Obat-obatan terlarang. Konten dewasa atau pornografi. Barang palsu atau tiruan.</p>
+            </section>
 
-            <h3>3. Etika Bertransaksi</h3>
-            <p>
-              Pengguna diharapkan untuk selalu bertransaksi dengan jujur dan
-              sopan. Segala bentuk penipuan, pelecehan, atau tindakan merugikan
-              lainnya akan ditindak tegas, termasuk pemblokiran akun permanen.
-            </p>
+            <section>
+              <h2 className="text-lg font-semibold text-gray-900 mb-2">3. Etika Bertransaksi</h2>
+              <p className="text-sm">Pengguna diharapkan melakukan transaksi secara jujur dan profesional. Tindakan penipuan, pelecehan, atau perilaku merugikan lainnya dapat mengakibatkan tindakan administratif, termasuk penghapusan akun.</p>
+            </section>
 
-            <h3>4. Sanksi Pelanggaran</h3>
-            <p>
-              Andalora berhak untuk menghapus konten, menangguhkan, atau
-              menghentikan akses pengguna yang melanggar kebijakan ini tanpa
-              pemberitahuan sebelumnya.
-            </p>
+            <section>
+              <h2 className="text-lg font-semibold text-gray-900 mb-2">4. Sanksi Pelanggaran</h2>
+              <p className="text-sm">Andalora berhak menghapus konten, menangguhkan, atau menghentikan akses pengguna yang melanggar kebijakan ini tanpa pemberitahuan terlebih dahulu.</p>
+            </section>
           </div>
         </div>
       </main>

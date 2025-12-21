@@ -1,14 +1,26 @@
 "use client";
 
 import Link from "next/link";
-import { Facebook, Twitter, Linkedin, Instagram } from "lucide-react";
+import Image from "next/image";
+import { Linkedin, Instagram, MessageCircle } from "lucide-react";
 
 export default function Footer() {
   const socialLinks = [
-    { icon: Facebook, href: "#", label: "Facebook" },
-    { icon: Twitter, href: "#", label: "Twitter" },
-    { icon: Linkedin, href: "#", label: "LinkedIn" },
-    { icon: Instagram, href: "#", label: "Instagram" },
+    {
+      icon: MessageCircle,
+      href: "https://wa.me/62895600077007",
+      label: "WhatsApp",
+    },
+    {
+      icon: Linkedin,
+      href: "https://www.linkedin.com/in/rahmat-fajar-saputra-90690a287/",
+      label: "LinkedIn",
+    },
+    {
+      icon: Instagram,
+      href: "https://instagram.com/jaaeyii__",
+      label: "Instagram",
+    },
   ];
 
   const footerLinks = [
@@ -32,7 +44,6 @@ export default function Footer() {
       topic: "Perusahaan",
       pages: [
         { label: "Tentang Kami", href: "/tentang-kami" },
-        { label: "Karir", href: "/karir" },
         { label: "Kebijakan", href: "/kebijakan" },
       ],
     },
@@ -45,11 +56,11 @@ export default function Footer() {
           {/* Left: logo + description + socials */}
           <div className="md:col-span-4 space-y-6">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-lg bg-purple-50 flex items-center justify-center text-lg font-bold text-purple-700 shadow-sm">
-                AL
+              <div className="w-12 h-12 rounded-lg bg-purple-50 flex items-center justify-center text-lg font-bold text-purple-700 shadow-sm overflow-hidden">
+                <Image src="/logo.ico" alt="Andalora" width={40} height={40} />
               </div>
               <div>
-                <h2 className="text-2xl font-semibold leading-snug text-gray-900">
+                <h2 className="text-2xl font-titan-one-100 leading-snug text-gray-900">
                   ANDALORA
                 </h2>
                 <p className="text-sm text-gray-600 mt-1">
@@ -103,7 +114,7 @@ export default function Footer() {
 
         <div className="mt-8 border-t border-gray-100 pt-6 flex flex-col md:flex-row items-center justify-between gap-3">
           <div className="text-sm text-gray-500">
-            © {new Date().getFullYear()} EduMart. All rights reserved.
+            © {new Date().getFullYear()} Andalora. All rights reserved.
           </div>
           <div className="flex items-center gap-4 text-sm text-gray-500">
             <Link

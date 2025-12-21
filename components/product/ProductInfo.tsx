@@ -124,6 +124,85 @@ export default function ProductInfo({
     });
   };
 
+  const handleReport = () => {
+    Swal.fire({
+      title: `Laporkan Produk: ${product.title}`,
+      html: `
+        <div class="text-left">
+          <label for="reason" class="block text-sm font-medium text-gray-700 mb-2">Alasan</label>
+          <select id="reason" class="w-full mb-3 rounded-md border-gray-200 p-2">
+            <option value="penipuan">Penipuan / Informasi Palsu</option>
+            <option value="konten_terlarang">Konten Terlarang</option>
+            <option value="pelanggaran_hak">Pelanggaran Hak Cipta</option>
+            <option value="lainnya">Lainnya</option>
+          </select>
+          <label for="details" class="block text-sm font-medium text-gray-700 mb-2">Detail (opsional)</label>
+          <textarea id="details" class="w-full rounded-md border-gray-200 p-2" rows="4" placeholder="Jelaskan masalahnya..."></textarea>
+        </div>
+      `,
+      showCancelButton: true,
+      confirmButtonText: "Kirim Laporan",
+      confirmButtonColor: "#DC2626",
+      cancelButtonText: "Batal",
+      preConfirm: () => {
+        // collect values from modal
+        const reasonEl = document.getElementById("reason") as HTMLSelectElement | null;
+        const detailsEl = document.getElementById("details") as HTMLTextAreaElement | null;
+        const reason = reasonEl?.value || "lainnya";
+        const details = detailsEl?.value || "";
+        return { reason, details };
+      },
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const { reason, details } = result.value as { reason: string; details: string };
+
+        // If user not logged in, prompt to login
+        if (!user) {
+          Swal.fire({
+            icon: "info",
+            title: "Login Diperlukan",
+            text: "Silakan login untuk mengirim laporan.",
+            confirmButtonText: "Masuk",
+            confirmButtonColor: "#2D3250",
+            showCancelButton: true,
+            cancelButtonText: "Batal",
+          }).then((r) => {
+            if (r.isConfirmed) router.push("/login");
+          });
+          return;
+        }
+
+        Swal.fire({ title: "Mengirim laporan...", didOpen: () => { Swal.showLoading(); } });
+
+        try {
+          const payload = {
+            subject: `Laporan Produk: ${product.title}`,
+            message: `Produk ID: ${product.id}\nJudul: ${product.title}\nURL: ${window.location.href}\nAlasan: ${reason}\nDetail: ${details}`,
+            priority: "normal",
+          };
+
+          const res = await fetch("/api/support/tickets", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+
+          const data = await res.json();
+
+          if (res.ok && data.success) {
+            Swal.fire({ title: "Laporan Terkirim", text: "Terima kasih, tim kami akan meninjau laporan ini.", icon: "success" });
+          } else {
+            console.error("Report error:", data);
+            Swal.fire({ title: "Gagal Mengirim", text: data.error || "Terjadi kesalahan saat mengirim laporan.", icon: "error" });
+          }
+        } catch (err) {
+          console.error(err);
+          Swal.fire({ title: "Gagal Mengirim", text: "Terjadi kesalahan jaringan.", icon: "error" });
+        }
+      }
+    });
+  };
+
   return (
     <motion.div
       className="w-full"
@@ -148,7 +227,7 @@ export default function ProductInfo({
               </button>
               {!hideActions && (
                 <button
-                  onClick={() => {}}
+                  onClick={handleReport}
                   className="rounded-full p-2 text-gray-400 hover:bg-red-50 hover:text-red-500 transition-colors"
                   title="Laporkan"
                 >

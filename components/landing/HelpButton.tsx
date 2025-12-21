@@ -9,12 +9,14 @@ export const HelpButton = () => {
       html: `
         <div class="text-left text-gray-600">
           <p class="mb-4"><strong>Selamat datang di Andalora!</strong></p>
-          <p class="mb-3">Platform marketplace mahasiswa Universitas Andalas.</p>
+          <p class="mb-3">Platform marketplace mahasiswa Universitas Andalas. Berikut ringkasan fitur dan panduan cepat:</p>
           <div class="space-y-2 text-sm">
-            <p>• <strong>Tamu:</strong> Jelajahi produk tanpa perlu akun.</p>
-            <p>• <strong>Masuk:</strong> Akses fitur lengkap jual beli.</p>
+            <p>• <strong>Untuk Pembeli:</strong> Cari dan filter produk, tambahkan ke favorit, dan lakukan pembelian melalui halaman produk.</p>
+            <p>• <strong>Untuk Penjual:</strong> Gunakan menu "Tambah Barang" untuk membuat listing lengkap dengan foto, deskripsi, dan harga.</p>
+            <p>• <strong>Lapor Masalah:</strong> Jika ada transaksi bermasalah, tandai pesanan dan hubungi tim support untuk bantuan lebih lanjut.</p>
           </div>
-          <p class="mt-6 text-xs text-gray-400">Butuh bantuan? Hubungi support@andalora.com</p>
+          <p class="mt-4 text-sm"><strong>Tips:</strong> Gunakan foto jelas, deskripsi lengkap, dan harga wajar untuk meningkatkan penjualan.</p>
+          <p class="mt-6 text-xs text-gray-400">Butuh bantuan? Hubungi <a href="mailto:andalorasupp@gmail.com" class="text-blue-600 underline">andalorasupp@gmail.com</a></p>
         </div>
       `,
       icon: "info",

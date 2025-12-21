@@ -12,51 +12,37 @@ export default function TermsPage() {
       <Navbar />
 
       <main className="flex-grow pt-24 pb-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto bg-white rounded-3xl p-8 md:p-12 border border-gray-100 shadow-sm">
-          <div className="text-center mb-12">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.5 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto text-blue-600 mb-6"
-            >
-              <FileText size={32} />
-            </motion.div>
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Syarat & Ketentuan
-            </h1>
-            <p className="text-gray-500">
-              Terakhir diperbarui: {new Date().toLocaleDateString("id-ID")}
-            </p>
+        <div className="max-w-3xl mx-auto bg-white rounded-2xl p-8 md:p-10 border border-gray-100 shadow">
+          <div className="flex items-start gap-4 mb-8">
+            <div className="flex-shrink-0 w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600">
+              <FileText size={20} />
+            </div>
+            <div>
+              <h1 className="text-2xl md:text-3xl font-semibold text-gray-900">Syarat &amp; Ketentuan</h1>
+              <p className="text-sm text-gray-500 mt-1">Terakhir diperbarui: {new Date().toLocaleDateString("id-ID")}</p>
+            </div>
           </div>
 
-          <div className="prose prose-lg prose-blue max-w-none text-gray-600">
-            <h3>1. Ketentuan Umum</h3>
-            <p>
-              Syarat dan ketentuan ini merupakan perjanjian antara pengguna
-              (&quot;Anda&quot;) dan Andalora (&quot;Kami&quot;). Dengan
-              mendaftar atau menggunakan layanan kami, Anda dianggap telah
-              membaca dan menyetujui seluruh isi perjanjian ini.
-            </p>
+          <div className="space-y-6 text-gray-700 leading-relaxed">
+            <section>
+              <h2 className="text-lg font-semibold text-gray-900 mb-2">1. Ketentuan Umum</h2>
+              <p className="text-sm">Syarat dan ketentuan ini merupakan perjanjian antara pengguna ("Anda") dan Andalora ("Kami"). Dengan mendaftar atau menggunakan layanan kami, Anda dianggap telah membaca dan menyetujui seluruh isi perjanjian ini.</p>
+            </section>
 
-            <h3>2. Akun Pengguna</h3>
-            <p>
-              Anda bertanggung jawab penuh atas keamanan akun dan password Anda.
-              Kami tidak bertanggung jawab atas kerugian yang timbul akibat
-              kelalaian Anda dalam menjaga kerahasiaan akun.
-            </p>
+            <section>
+              <h2 className="text-lg font-semibold text-gray-900 mb-2">2. Akun Pengguna</h2>
+              <p className="text-sm">Anda bertanggung jawab penuh atas keamanan akun dan password Anda. Kami tidak bertanggung jawab atas kerugian yang timbul akibat kelalaian Anda dalam menjaga kerahasiaan akun.</p>
+            </section>
 
-            <h3>3. Transaksi</h3>
-            <p>
-              Andalora hanya menyediakan platform perantara. Kesepakatan harga,
-              pengiriman, dan kondisi barang sepenuhnya menjadi tanggung jawab
-              penjual dan pembeli.
-            </p>
+            <section>
+              <h2 className="text-lg font-semibold text-gray-900 mb-2">3. Transaksi</h2>
+              <p className="text-sm">Andalora hanya menyediakan platform perantara. Kesepakatan harga, pengiriman, dan kondisi barang sepenuhnya menjadi tanggung jawab penjual dan pembeli.</p>
+            </section>
 
-            <h3>4. Batasan Tanggung Jawab</h3>
-            <p>
-              Kami berupaya menjaga layanan tetap aman dan nyaman, namun kami
-              tidak menjamin layanan akan selalu bebas dari gangguan atau error.
-            </p>
+            <section>
+              <h2 className="text-lg font-semibold text-gray-900 mb-2">4. Batasan Tanggung Jawab</h2>
+              <p className="text-sm">Kami berupaya menjaga layanan tetap aman dan nyaman, namun kami tidak menjamin layanan akan selalu bebas dari gangguan atau error.</p>
+            </section>
           </div>
         </div>
       </main>

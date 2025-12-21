@@ -44,7 +44,13 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
-.titan-one-regular {
+.font-titan-one-100 {
+  font-family: "Titan One", sans-serif;
+  font-weight: 100;
+  font-style: normal;
+}
+
+.font-titan-one-400 {
   font-family: "Titan One", sans-serif;
   font-weight: 400;
   font-style: normal;
