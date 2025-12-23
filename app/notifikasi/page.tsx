@@ -16,6 +16,7 @@ import {
   Clock,
   ChevronRight,
 } from "lucide-react";
+import { Heart, Edit3, Trash2, PlusCircle } from "lucide-react";
 
 import { Notification } from "@/types";
 
@@ -151,8 +152,30 @@ export default function NotificationsPage() {
       await markAsRead(notification.id);
     }
 
-    if (notification.link) {
-      router.push(notification.link);
+    let targetLink = notification.link;
+
+    // Fallback link generation if not provided in DB
+    if (!targetLink && notification.related_product_id) {
+      switch (notification.type) {
+        case "product_created":
+        case "product_updated":
+          targetLink = `/marketplace/manage-product/${notification.related_product_id}`;
+          break;
+        case "product_favorited":
+          targetLink = `/marketplace/product/${notification.related_product_id}`;
+          break;
+        case "product_sold":
+        case "transaction":
+          // Maybe to transaction detail? simpler to go to manage product for now
+          targetLink = `/marketplace/manage-product/${notification.related_product_id}`;
+          break;
+        default:
+          break;
+      }
+    }
+
+    if (targetLink) {
+      router.push(targetLink);
     }
   };
 
@@ -160,6 +183,15 @@ export default function NotificationsPage() {
     switch (type) {
       case "support":
         return <MessageSquare className="text-blue-500" size={24} />;
+      case "product_favorited":
+        return <Heart className="text-pink-500" size={24} />;
+      case "product_created":
+        return <PlusCircle className="text-indigo-500" size={24} />;
+      case "product_updated":
+        return <Edit3 className="text-yellow-500" size={24} />;
+      case "product_deleted":
+      case "product_deleted_by_admin":
+        return <Trash2 className="text-red-500" size={24} />;
       case "transaction":
       case "product_sold":
       case "payment_success":
@@ -178,6 +210,15 @@ export default function NotificationsPage() {
     switch (type) {
       case "support":
         return "bg-blue-100";
+      case "product_favorited":
+        return "bg-pink-100";
+      case "product_created":
+        return "bg-indigo-100";
+      case "product_updated":
+        return "bg-yellow-100";
+      case "product_deleted":
+      case "product_deleted_by_admin":
+        return "bg-red-100";
       case "transaction":
       case "product_sold":
       case "payment_success":

@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
+import { createNotification } from "@/lib/createNotification";
 
 export async function GET(request: Request) {
   const supabase = await createClient();
@@ -127,6 +128,13 @@ export async function DELETE(request: Request) {
     // Delete related data first using admin client
     const supabaseAdmin = createAdminClient();
 
+    // Fetch product info to notify owner
+    const { data: productToDelete } = await supabase
+      .from("products")
+      .select("id, user_id, title")
+      .eq("id", id)
+      .single();
+
     // 1. Delete transactions
     await supabaseAdmin.from("transactions").delete().eq("product_id", id);
 
@@ -141,6 +149,16 @@ export async function DELETE(request: Request) {
       .from("notifications")
       .delete()
       .eq("related_product_id", id);
+
+    // Notify owner that product was deleted by admin
+    if (productToDelete && productToDelete.user_id) {
+      await createNotification({
+        userId: productToDelete.user_id,
+        type: "product_deleted_by_admin",
+        title: "Produk Dihapus oleh Admin",
+        message: `Produk Anda "${productToDelete.title}" telah dihapus oleh admin. Hubungi support jika perlu bantuan.`,
+      });
+    }
 
     // Delete product
     const { error } = await supabase.from("products").delete().eq("id", id);

@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
+import { createNotification } from "@/lib/createNotification";
 
 // GET /api/favorites - Get user's favorites (support guest and authenticated)
 export async function GET(request: Request) {
@@ -148,6 +149,32 @@ export async function POST(request: Request) {
       );
     }
 
+    // Notify product owner about the favorite
+    try {
+      const adminSupabase = createAdminClient();
+      // Fetch product with owner
+      const { data: prod } = await adminSupabase
+        .from("products")
+        .select("id, user_id, title")
+        .eq("id", product_id)
+        .single();
+
+      if (prod && prod.user_id) {
+        // Avoid notifying if owner favorites their own product
+        if (!user || user.id !== prod.user_id) {
+          await createNotification({
+            userId: prod.user_id,
+            type: "product_favorited",
+            title: "Produk Disimpan",
+            message: `Produk Anda "${prod.title}" disimpan oleh pengguna.`,
+            relatedProductId: prod.id,
+          });
+        }
+      }
+    } catch (e) {
+      console.error("Error creating favorite notification:", e);
+    }
+
     return NextResponse.json({
       success: true,
       message: "Produk berhasil ditambahkan ke favorit",
@@ -161,3 +188,6 @@ export async function POST(request: Request) {
     );
   }
 }
+
+// Optional: create notification for owner when product is favorited
+// Note: we insert via admin client to bypass RLS so notification reaches owner

@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 import type { CreateProductRequest } from "@/types";
+import { createNotification } from "@/lib/createNotification";
 
 // GET /api/products - List all active products (public)
 export async function GET(request: Request) {
@@ -210,6 +211,18 @@ export async function POST(request: Request) {
         { status: 500 }
       );
     }
+
+    // Create notification to remind user to complete listing payment
+
+    // Create notification to remind user to complete listing payment
+    await createNotification({
+      userId: user.id,
+      type: "product_created",
+      title: "Produk Dibuat",
+      message:
+        "Produk Anda telah dibuat dan menunggu pembayaran paket listing. Silakan selesaikan pembayaran agar produk aktif.",
+      relatedProductId: data.id,
+    });
 
     return NextResponse.json({
       success: true,

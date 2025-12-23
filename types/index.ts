@@ -100,7 +100,11 @@ export type NotificationType =
   | "payment_failed"
   | "support"
   | "transaction"
-  | "system";
+  | "system"
+  | "product_created"
+  | "product_updated"
+  | "product_favorited"
+  | "product_deleted_by_admin";
 
 export type Notification = {
   id: string;

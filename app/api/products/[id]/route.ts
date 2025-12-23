@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 import type { UpdateProductRequest } from "@/types";
+import { createNotification } from "@/lib/createNotification";
 
 // GET /api/products/[id] - Get product detail (public)
 export async function GET(
@@ -176,6 +177,15 @@ export async function PUT(
       );
     }
 
+    // Create notification for product update
+    await createNotification({
+      userId: user.id,
+      type: "product_updated",
+      title: "Produk Diperbarui",
+      message: `Produk Anda "${data.title}" telah diperbarui.`,
+      relatedProductId: data.id,
+    });
+
     return NextResponse.json({
       success: true,
       message: "Produk berhasil diupdate",
@@ -215,7 +225,7 @@ export async function DELETE(
     // Check if product exists and user is owner
     const { data: existingProduct, error: fetchError } = await supabase
       .from("products")
-      .select("user_id")
+      .select("user_id, title")
       .eq("id", id)
       .single();
 
@@ -253,6 +263,16 @@ export async function DELETE(
       .from("notifications")
       .delete()
       .eq("related_product_id", id);
+
+    // Create notification about deletion
+    await createNotification({
+      userId: user.id,
+      type: "product_deleted",
+      title: "Produk Dihapus",
+      message: `Produk Anda "${
+        existingProduct.title || "Unknown"
+      }" telah dihapus.`,
+    });
 
     // Delete product
     const { error } = await supabase.from("products").delete().eq("id", id);
