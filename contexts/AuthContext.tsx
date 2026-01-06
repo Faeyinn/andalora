@@ -34,26 +34,52 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Fetch current user
   const fetchUser = async () => {
     try {
+      // Add timeout to prevent hanging requests
+      const getUserPromise = supabase.auth.getUser();
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Auth check timeout")), 10000)
+      );
+
       const {
         data: { user: authUser },
-      } = await supabase.auth.getUser();
+      } = await Promise.race([getUserPromise, timeoutPromise]) as {
+        data: { user: any };
+      };
 
       if (authUser) {
-        // Fetch user profile from our API
-        const response = await fetch("/api/auth/me");
-        if (response.ok) {
-          const result = await response.json();
-          setUser(result.data);
-        } else {
-          console.warn("Failed to fetch user profile, signing out...");
-          await supabase.auth.signOut();
-          setUser(null);
+        // Fetch user profile from our API with timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
+        
+        try {
+          const response = await fetch("/api/auth/me", {
+            signal: controller.signal,
+          });
+          clearTimeout(timeoutId);
+          
+          if (response.ok) {
+            const result = await response.json();
+            setUser(result.data);
+          } else {
+            console.warn("Failed to fetch user profile, signing out...");
+            await supabase.auth.signOut();
+            setUser(null);
+          }
+        } catch (fetchError: any) {
+          clearTimeout(timeoutId);
+          if (fetchError.name === "AbortError") {
+            console.warn("API request timeout, continuing without user data");
+            setUser(null);
+          } else {
+            throw fetchError;
+          }
         }
       } else {
         setUser(null);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching user:", error);
+      // Don't block the app if auth check fails - just set user to null
       setUser(null);
     } finally {
       setLoading(false);

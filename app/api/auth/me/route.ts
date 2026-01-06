@@ -5,11 +5,19 @@ export async function GET() {
   try {
     const supabase = await createClient();
 
-    // Get current user
+    // Get current user with timeout
+    const getUserPromise = supabase.auth.getUser();
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("Auth check timeout")), 8000)
+    );
+
     const {
       data: { user },
       error: authError,
-    } = await supabase.auth.getUser();
+    } = await Promise.race([getUserPromise, timeoutPromise]) as {
+      data: { user: any };
+      error: any;
+    };
 
     if (authError || !user) {
       return NextResponse.json(
@@ -18,12 +26,20 @@ export async function GET() {
       );
     }
 
-    // Get user profile
-    const { data: userData, error: userError } = await supabase
+    // Get user profile with timeout
+    const profilePromise = supabase
       .from("users")
       .select("*")
       .eq("id", user.id)
       .single();
+    const profileTimeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("Database query timeout")), 8000)
+    );
+
+    const { data: userData, error: userError } = await Promise.race([
+      profilePromise,
+      profileTimeoutPromise,
+    ]) as { data: any; error: any };
 
     if (userError) {
       console.error("Error fetching user profile:", userError);
@@ -37,8 +53,15 @@ export async function GET() {
       success: true,
       data: userData,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Get user error:", error);
+    // Return 401 if timeout, so client knows to retry or handle gracefully
+    if (error?.message?.includes("timeout")) {
+      return NextResponse.json(
+        { success: false, error: "Request timeout" },
+        { status: 408 }
+      );
+    }
     return NextResponse.json(
       { success: false, error: "Terjadi kesalahan server" },
       { status: 500 }
